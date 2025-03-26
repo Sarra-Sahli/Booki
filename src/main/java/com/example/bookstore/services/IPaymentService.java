@@ -1,0 +1,18 @@
+package com.example.bookstore.services;
+
+import com.example.bookstore.entities.Payment;
+import com.example.bookstore.entities.PaymentStatus;
+import com.stripe.exception.StripeException;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+
+public interface IPaymentService {
+    String createCheckoutSession(Double amount, Long cartId, String customerEmail) throws StripeException;
+    void updatePaymentStatus(String sessionId, PaymentStatus status);
+    List<Payment> getAllPayments();
+    Payment getPaymentById(Long id);
+
+
+}
