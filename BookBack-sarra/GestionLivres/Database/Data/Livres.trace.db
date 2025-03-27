@@ -1,0 +1,4 @@
+2025-02-19 22:45:22.485762+01:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Erreur de syntaxe dans l'instruction SQL "SELECT * FROM BOOKS BOOKS [*]AUTHOR"
+Syntax error in SQL statement "SELECT * FROM BOOKS BOOKS [*]AUTHOR"; SQL statement:
+SELECT * FROM BOOKS BOOKS AUTHOR [42000-232]
