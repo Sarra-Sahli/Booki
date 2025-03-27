@@ -14,6 +14,8 @@ public class Books {
     private Double price;
     private Boolean available;
 
+    private String imageUrl;
+
     @Enumerated(EnumType.STRING)
     private Genre genre;
 
@@ -23,13 +25,23 @@ public class Books {
     // Constructeurs
     public Books() {}
 
-    public Books(String title, String author, Double price, Boolean available, Genre genre, Date publicationDate) {
+    public Books(String title, String author, Double price, Boolean available,
+                 Genre genre, Date publicationDate, String imageUrl) {
         this.title = title;
         this.author = author;
         this.price = price;
         this.available = available;
         this.genre = genre;
         this.publicationDate = publicationDate;
+        this.imageUrl = imageUrl;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     // Getters/Setters
@@ -64,6 +76,7 @@ public class Books {
                 ", available=" + available +
                 ", genre=" + genre +
                 ", publicationDate=" + publicationDate +
-                '}';
+                ", imageUrl='" + imageUrl + '\''+
+        '}';
     }
 }

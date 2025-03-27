@@ -82,3 +82,14 @@
 .button-group button:hover:not(:disabled) {
     opacity: 0.8;
 }
+
+.image-preview {
+    display: block;
+    margin-top: 10px;
+  }
+  
+  .image-preview img {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+  }

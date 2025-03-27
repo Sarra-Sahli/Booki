@@ -6,5 +6,6 @@ export interface Book {
     genre: string;
     price: number;
     available: boolean;
+    imageUrl?: string; // Ajoutez ce champ
     publicationDate: string; // Changez de Date à string
 }

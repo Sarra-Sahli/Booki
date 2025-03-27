@@ -17,18 +17,17 @@ public class GestionLivresApplication {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")  // Autorise tous les endpoints
-                        .allowedOrigins(
-                                "http://127.0.0.1:5500",  // Live Server
-                                "http://localhost:5500",   // Alternative
-                                "http://localhost:4200"    // Angular
+                registry.addMapping("/api/**")  // Spécifiez le path de votre API
+                        .allowedOriginPatterns(
+                                "http://localhost:[*]",  // Autorise tous les ports
+                                "http://127.0.0.1:[*]",
+                                "http://192.168.[0-9]*.[0-9]*:[*]"  // IP locales
                         )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(true)
                         .maxAge(3600);
             }
         };
     }
-
 }

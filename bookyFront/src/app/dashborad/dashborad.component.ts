@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { BookService } from '../services/book.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,6 +18,8 @@ export class DashboardComponent implements OnInit {
     this.loadBooks();
   }
 
+  
+
   loadBooks(): void {
     this.bookService.getBooks().subscribe(
       (data) => {
@@ -25,6 +28,14 @@ export class DashboardComponent implements OnInit {
       },
       (error) => console.error('Erreur lors du chargement des livres', error)
     );
+  }
+
+  getImageUrl(imagePath: string): string {
+    if (imagePath.startsWith('http')) {
+      return imagePath; // Si c'est déjà une URL complète
+    }
+    // Adaptez cette URL selon votre configuration backend
+    return `${environment.apiUrl}/uploads/${imagePath}`;
   }
 
   deleteLivre(id: number): void { // Correction du nom de la fonction

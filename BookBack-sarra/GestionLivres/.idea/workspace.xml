@@ -53,7 +53,7 @@
     "Spring Boot.GestionLivresApplication.executor": "Run",
     "git-widget-placeholder": "GestionLivre",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Sarra/Documents/GitHub/Booki/BookBack-sarra/GestionLivres",
+    "last_opened_file_path": "C:/Users/Sarra/Documents/GitHub/Booki/BookBack-sarra",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -64,7 +64,8 @@
 }]]></component>
   <component name="RunManager">
     <configuration name="GestionLivresApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
-      <module name="GestionLivres" />
+      <option name="ALTERNATIVE_JRE_PATH" value="17 (2)" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.microservice.gestionlivres.GestionLivresApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -96,6 +97,7 @@
       <workItem from="1743021026907" duration="4865000" />
       <workItem from="1743074020829" duration="1803000" />
       <workItem from="1743077125727" duration="920000" />
+      <workItem from="1743078363336" duration="159000" />
     </task>
     <servers />
   </component>

@@ -1,7 +1,7 @@
 <div class="add-book-container">
     <h2>Ajouter un nouveau livre</h2>
     
-    <form (ngSubmit)="onSubmit()" #bookForm="ngForm">
+    <form (ngSubmit)="onSubmit()" #bookForm="ngForm"enctype="multipart/form-data">
       <div class="form-group">
         <label for="title">Titre</label>
         <input type="text" id="title" name="title" [(ngModel)]="book.title" required>
@@ -26,6 +26,13 @@
         </select>
       </div>
   
+      <div class="form-group">
+        <label for="image">Image du livre</label>
+        <input type="file" id="image" name="image" (change)="onFileSelected($event)" accept="image/*">
+        <small *ngIf="book.imageUrl" class="image-preview">
+          <img [src]="book.imageUrl" alt="Preview" height="100" *ngIf="book.imageUrl">
+        </small>
+      </div>
       <div class="form-group">
         <label for="price">Prix</label>
         <input type="number" step="0.01" id="price" name="price" [(ngModel)]="book.price" required>
