@@ -1,0 +1,73 @@
+<!-- dashboard.component.html -->
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo">
+        <h2>Admin Panel</h2>
+      </div>
+      
+      <div class="nav-menu">
+        <div class="nav-item active" routerLink="/dashboard">
+          <i>📊</i> Dashboard
+        </div>
+        <div class="nav-item" routerLink="/add-book">
+          <i>📚</i> Books
+        </div>
+        <div class="nav-item">
+          <i>👥</i> Users
+        </div>
+      </div>
+    </div>
+  
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="header">
+        <h1>Tableau de Bord</h1>
+        <button class="btn btn-primary" routerLink="/add-book">+ Ajouter un livre</button>
+      </div>
+  
+      <!-- Table Controls -->
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Rechercher..." 
+               [(ngModel)]="searchTerm" (input)="applyFilter()">
+      </div>
+  
+      <!-- Books Table -->
+      <table class="dashboard-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Titre</th>
+            <th>Auteur</th>
+            <th>Genre</th>
+            <th>Prix</th>
+            <th>Date Publication</th>
+            <th>Disponibilité</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let book of filteredBooks">
+            <td>{{book.id}}</td>
+            <td>{{book.title}}</td>
+            <td>{{book.author}}</td>
+            <td>{{book.genre}}</td>
+            <td>{{book.price | currency:'EUR'}}</td>
+            <td>{{book.publicationDate | date:'dd/MM/yyyy'}}</td>
+            <td>
+              <span class="status" [ngClass]="book.available ? 'status-success' : 'status-danger'">
+                {{book.available ? 'Disponible' : 'Indisponible'}}
+              </span>
+            </td>
+            <td>
+           <!--  <button class="btn btn-primary btn-sm" (click)="editBook(book.id)">Éditer</button>-->
+           <button class="btn btn-danger btn-sm" (click)="deleteLivre(book.id)">Supprimer</button>
+        </td>
+          </tr>
+          <tr *ngIf="filteredBooks.length === 0">
+            <td colspan="8" class="no-data">Aucun livre trouvé</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
