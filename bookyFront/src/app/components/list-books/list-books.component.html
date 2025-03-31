@@ -1,0 +1,53 @@
+<div class="header">
+    <h1>Books List</h1>
+    <button class="btn btn-primary" routerLink="/add-book">+ Ajouter un livre</button>
+  </div>
+
+  <!-- Table Controls -->
+  <div class="table-controls">
+    <input type="text" class="search-box" placeholder="Rechercher..." 
+           [(ngModel)]="searchTerm" (input)="applyFilter()">
+  </div>
+
+  <!-- Books Table -->
+ <!-- Books Table -->
+<table class="dashboard-table">
+<thead>
+<tr>
+  <th>ID</th>
+  <th>Image</th> <!-- Nouvelle colonne -->
+  <th>Titre</th>
+  <th>Auteur</th>
+  <th>Genre</th>
+  <th>Prix</th>
+  <th>Date Publication</th>
+  <th>Disponibilité</th>
+  <th>Actions</th>
+</tr>
+</thead>
+<tbody>
+<tr *ngFor="let book of filteredBooks">
+  <td>{{book.id}}</td>
+  <td>
+    <img *ngIf="book.imageUrl" [src]="getImageUrl(book.imageUrl)" alt="Couverture du livre" class="book-image">
+    <span *ngIf="!book.imageUrl">Pas d'image</span>
+  </td>
+  <td>{{book.title}}</td>
+  <td>{{book.author}}</td>
+  <td>{{book.genre}}</td>
+  <td>{{book.price}} TND</td>
+  <td>{{book.publicationDate | date:'dd/MM/yyyy'}}</td>
+  <td>
+    <span class="status" [ngClass]="book.available ? 'status-success' : 'status-danger'">
+      {{book.available ? 'Disponible' : 'Indisponible'}}
+    </span>
+  </td>
+  <td>
+    <button class="btn btn-danger btn-sm" (click)="deleteLivre(book.id)">Supprimer</button>
+  </td>
+</tr>
+<tr *ngIf="filteredBooks.length === 0">
+  <td colspan="9" class="no-data">Aucun livre trouvé</td>
+</tr>
+</tbody>
+</table>

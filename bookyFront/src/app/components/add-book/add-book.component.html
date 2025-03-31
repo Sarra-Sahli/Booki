@@ -1,0 +1,51 @@
+<div class="add-book-container">
+    <h2>Ajouter un nouveau livre</h2>
+    
+    <form (ngSubmit)="onSubmit()" #bookForm="ngForm"enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="title">Titre</label>
+        <input type="text" id="title" name="title" [(ngModel)]="book.title" required>
+      </div>
+  
+      <div class="form-group">
+        <label for="author">Auteur</label>
+        <input type="text" id="author" name="author" [(ngModel)]="book.author" required>
+      </div>
+  
+      <div class="form-group">
+        <label for="genre">Genre</label>
+        <select id="genre" name="genre" [(ngModel)]="book.genre" required>
+          <option value="ROMANCE">Romance</option>
+          <option value="SCIENCE_FICTION">Science-Fiction</option>
+          <option value="FANTASY">Fantasy</option>
+          <option value="HORROR">Horror</option>
+          <option value="FICTION">FICTION</option>
+          <option value="HISTORY">HISTORY</option>
+          <option value="BIOGRAPHY">BIOGRAPHY</option>
+
+        </select>
+      </div>
+  
+      <div class="form-group">
+        <label for="image">Image du livre</label>
+        <input type="file" id="image" name="image" (change)="onFileSelected($event)" accept="image/*">
+        <small *ngIf="book.imageUrl" class="image-preview">
+          <img [src]="book.imageUrl" alt="Preview" height="100" *ngIf="book.imageUrl">
+        </small>
+      </div>
+      <div class="form-group">
+        <label for="price">Prix</label>
+        <input type="number" step="0.01" id="price" name="price" [(ngModel)]="book.price" required>
+      </div>
+  
+      <div class="form-group checkbox">
+        <label for="available">Disponible</label>
+        <input type="checkbox" id="available" name="available" [(ngModel)]="book.available">
+      </div>
+  
+      <div class="button-group">
+        <button type="submit" [disabled]="!bookForm.valid">Enregistrer</button>
+        <button type="button" (click)="goBack()">Annuler</button>
+      </div>
+    </form>
+  </div>
