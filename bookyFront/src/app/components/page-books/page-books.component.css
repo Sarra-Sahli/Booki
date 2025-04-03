@@ -1,0 +1,43 @@
+/* Custom snackbar styles */
+.custom-success-snackbar {
+    background: #4CAF50;
+    color: white;
+    border-radius: 8px;
+    padding: 16px 24px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  .custom-error-snackbar {
+    background: #F44336;
+    color: white;
+    border-radius: 8px;
+    padding: 16px 24px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  /* Add icon to snackbar (optional) */
+  .custom-success-snackbar::before {
+    content: '✓';
+    margin-right: 8px;
+    font-weight: bold;
+  }
+  
+  .custom-error-snackbar::before {
+    content: '!';
+    margin-right: 8px;
+    font-weight: bold;
+  }
+  
+  /* Keep your existing button styles */
+  .btn-dark[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.2em;
+  }

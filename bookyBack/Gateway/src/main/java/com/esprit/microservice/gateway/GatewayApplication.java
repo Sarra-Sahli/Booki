@@ -16,10 +16,8 @@ public class GatewayApplication {
     }
 
 
-   @Bean
-
+   /*@Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder){
-
         return builder.routes()
                 .route("carts", r->r.path("/carts/**")
                         .uri("http://localhost:8081"))
@@ -27,6 +25,18 @@ public class GatewayApplication {
     }
 
 
+
+    */
+
+    @Bean
+    public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
+        return builder.routes()
+                .route("cart-service", r -> r.path("/carts/**")
+                        .uri("lb://BOOKI"))  // "lb://" + Eureka service name
+              //  .route("book-service", r -> r.path("/books/**")
+                //        .uri("lb://GESTIONLIVRES"))
+                .build();
+    }
 }
 
 

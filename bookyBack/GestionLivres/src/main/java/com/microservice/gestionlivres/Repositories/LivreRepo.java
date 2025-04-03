@@ -9,5 +9,7 @@ import java.util.List;
 
 @Repository
 public interface LivreRepo extends JpaRepository<Books, Integer> {
+    List<Books> findAllByOrderByTitleAsc();
+    List<Books> findAllByOrderByTitleDesc();
     Books findById(Long id);
 }

@@ -65,11 +65,29 @@
         </div>
         
         <!-- Footer with Total -->
+        <!-- Add this inside your cart-card div -->
         <div class="cart-footer">
-            <span class="total-amount">{{cart.totalPrice}} TND</span>
+            <span class="total-amount">Total : {{cart.totalPrice}} TND</span>
+            <div class="qr-button-container">
+            <button class="qr-button" (click)="openQRModal(cart)">
+              <i class="fas fa-qrcode"></i>
+            </button>
+          </div>
+         </div>
         </div>
-    </div>
-</div>
+        
+        <!-- Single Modal for QR Code (outside the *ngFor) -->
+        <div class="qr-modal" *ngIf="selectedCartForQR" (click)="closeQRModal()">
+          <div class="qr-modal-content" (click)="$event.stopPropagation()">
+            <button class="close-button" (click)="closeQRModal()">&times;</button>
+            <div class="cart-header">
+                <h3 style="margin-left: 60px; font-size: 20px;">Cart #{{selectedCartForQR.id}}</h3>
+            </div>            
+            <qrcode [qrdata]="generateQRPayload(selectedCartForQR)" 
+                    [width]="250"
+                    [errorCorrectionLevel]="'M'"
+                    [colorDark]="'#000000'"
+                    [colorLight]="'#ffffff'"></qrcode>
 
 <!-- Empty State -->
 <div *ngIf="filteredCarts.length === 0" class="empty-state">

@@ -1,12 +1,25 @@
 package com.microservice.gestionlivres.Services;
 
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.microservice.gestionlivres.Entites.Books;
 import com.microservice.gestionlivres.Repositories.LivreRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class Services implements Iservices{
@@ -37,20 +50,17 @@ public class Services implements Iservices{
             return "Échec de la suppression: Une erreur est survenue lors de la suppression du livre (ID: " + id + ")";
         }
     }
-
-    public Books getBookById(Long id) {
-        return livreRepo.findById(id);
-    }
-
+    @Value("${file.upload-dir}")
+    private String uploadDir;
     @Override
-    public String modifierBook(int id, Books updatedBook) {
+    public String modifierBook(int id, Books updatedBook, MultipartFile file) {
         try {
             Optional<Books> optionalBook = livreRepo.findById(id);
 
             if (optionalBook.isPresent()) {
                 Books existingBook = optionalBook.get();
 
-                // Mise à jour conditionnelle de tous les champs
+                // Mise à jour des champs
                 if (updatedBook.getTitle() != null) {
                     existingBook.setTitle(updatedBook.getTitle());
                 }
@@ -63,25 +73,89 @@ public class Services implements Iservices{
                 if (updatedBook.getAvailable() != null) {
                     existingBook.setAvailable(updatedBook.getAvailable());
                 }
-                if (updatedBook.getGenre() != null) {
-                    existingBook.setGenre(updatedBook.getGenre());
-                }
-                if (updatedBook.getPublicationDate() != null) {
-                    existingBook.setPublicationDate(updatedBook.getPublicationDate());
-                }
-
-                if (updatedBook.getQuantite() != null) {
+                if (updatedBook.getQuantite()!= null) {
                     existingBook.setQuantite(updatedBook.getQuantite());
+                }
+                
+                // Gestion de l'image
+                if (file != null && !file.isEmpty()) {
+                    String filename = storeFile(file);
+                    existingBook.setImageUrl("/api/books/uploads/" + filename); // Mettez à jour imageUrl
                 }
 
                 livreRepo.save(existingBook);
                 return "Livre modifié avec succès (ID: " + id + ")";
-            } else {
-                return "Échec : Livre introuvable (ID: " + id + ")";
             }
+            return "Livre introuvable (ID: " + id + ")";
         } catch (Exception e) {
-            return "Erreur lors de la modification : " + e.getMessage();
+            return "Erreur: " + e.getMessage();
         }
+    }
+
+    private String storeFile(MultipartFile file) throws IOException {
+        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        Path filePath = Paths.get(uploadDir).resolve(filename);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        return filename;
+    }
+
+
+    @Override
+    public Optional<Books> getBookById(int id) {
+        return livreRepo.findById(id);
+    }
+
+    @Override
+    public byte[] exportBooksToPdf(List<Books> books) throws DocumentException {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Document document = new Document();
+            PdfWriter.getInstance(document, outputStream);
+
+            document.open();
+
+            // Titre du document
+            Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
+            Paragraph title = new Paragraph("Liste des Livres", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+
+            document.add(Chunk.NEWLINE);
+
+            // Tableau des livres
+            PdfPTable table = new PdfPTable(4);
+            table.setWidthPercentage(100);
+
+            // En-têtes du tableau
+            table.addCell("ID");
+            table.addCell("Titre");
+            table.addCell("Auteur");
+            table.addCell("Année");
+
+            // Remplissage des données
+            for (Books book : books) {
+                table.addCell(book.getId().toString());
+                table.addCell(book.getTitle());
+                table.addCell(book.getAuthor());
+                table.addCell(book.getPublicationDate().toString());
+            }
+
+            document.add(table);
+            document.close();
+
+            return outputStream.toByteArray();
+        }
+
+    @Override
+    public List<Books> getAllBooksSortedByTitle(boolean ascending) {
+        return ascending ? livreRepo.findAllByOrderByTitleAsc()
+                : livreRepo.findAllByOrderByTitleDesc();
+    }
+
+    @Override
+    public Books getById(Long id)
+    {
+        return livreRepo.findById(id);
+
     }
 
 }

@@ -17,6 +17,15 @@ import { BlankLayoutComponent } from './layouts/blank-layout/blank-layout.compon
 import { DashSidebarComponent } from './components/dash-sidebar/dash-sidebar.component';
 import { CartBackComponent } from './components/cart-back/cart-back.component';
 import { ListBooksComponent } from './components/list-books/list-books.component';
+import { LayoutUpdateAddComponent } from './layouts/layout-update-add/layout-update-add.component';
+import { UpdateBookComponent } from './components/update-book/update-book.component';
+import { QRCodeModule } from 'angularx-qrcode';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CustomSnackBarComponent } from './components/custom-snack-bar/custom-snack-bar.component';
+
+
+
 
 @NgModule({
   declarations: [
@@ -32,16 +41,21 @@ import { ListBooksComponent } from './components/list-books/list-books.component
     BlankLayoutComponent,
     DashSidebarComponent,
     CartBackComponent,
-    ListBooksComponent
+    ListBooksComponent,
+    UpdateBookComponent,
+    LayoutUpdateAddComponent,
+    CustomSnackBarComponent
     
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    HttpClientModule
-
-
+    HttpClientModule,
+    QRCodeModule,
+    MatSnackBarModule,
+    BrowserAnimationsModule,
+    
   ],
   providers: [],
   bootstrap: [AppComponent]

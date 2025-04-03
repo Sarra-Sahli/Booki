@@ -2,12 +2,13 @@ package com.esprit.microservice.Booki.cart;
 
 import com.esprit.microservice.Booki.cart.dto.Books;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @FeignClient(name = "GESTIONLIVRES")
 public  interface BookClient {
@@ -17,9 +18,17 @@ public  interface BookClient {
 
 
     @GetMapping("books/{id}")
-     Books getBookById(@PathVariable Long id);
-    // Add other endpoints you need from your Book service
+    Books getById(@PathVariable Long id);
 
-    @PutMapping("/UpdateLivre/{id}")
-    String modifierBook(@PathVariable int id, @RequestBody Books updatedBook);
+    //@PutMapping("/UpdateLivre/{id}")
+    //String modifierBook(@PathVariable int id, @RequestBody Books updatedBook);
+
+
+    @PutMapping(value = "/UpdateLivre/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<Map<String, Object>> updateBook(
+            @PathVariable int id,
+            @RequestPart("book") String bookJson,
+            @RequestPart(value = "file", required = false) MultipartFile file);
 }

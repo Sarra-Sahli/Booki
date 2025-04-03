@@ -16,7 +16,8 @@ export class AddBookComponent {
     price: 0,
     available: true,
     publicationDate: new Date().toISOString(),
-    imageUrl: ''
+    imageUrl: '',
+    quantite: 0
   };
   selectedFile: File | null = null;
   isSubmitting = false;
@@ -98,7 +99,8 @@ export class AddBookComponent {
   private isFormValid(): boolean {
     return this.book.title.trim() !== '' && 
            this.book.author.trim() !== '' &&
-           this.book.price > 0;
+           this.book.price > 0 &&
+           this.book.quantite >= 0;
   }
 
   private resetUploadState(): void {

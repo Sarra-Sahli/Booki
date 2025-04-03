@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Cart } from 'src/app/models/cart';
 import { CartService } from 'src/app/services/cart.service';
 
+
 @Component({
   selector: 'app-cart-back',
   templateUrl: './cart-back.component.html',
@@ -11,7 +12,20 @@ export class CartBackComponent {
 
     cartItems: Cart[] = [];
     message: string = '';
+searchTerm: string = '';
+filterCriteria: string = 'all';
+filteredCarts: Cart[] = [];
+
   
+
+selectedCartForQR: Cart | null = null;
+qrCodeSize = 160;
+qrErrorCorrectionLevel: 'L'|'M'|'Q'|'H' = 'M';
+
+showQRForCartId: number | null = null;
+
+
+ 
     constructor(private cartService: CartService) {}
   
     ngOnInit(): void {
@@ -19,10 +33,6 @@ export class CartBackComponent {
      
     }
   
-// Add these properties to your component class
-searchTerm: string = '';
-filterCriteria: string = 'all';
-filteredCarts: Cart[] = [];
 
 // Add this method to your component class
 filterCarts(): void {
@@ -72,6 +82,37 @@ fetchCartItems(): void {
       
       // For local files stored in your Spring uploads folder
       return `http://localhost:8095/uploads/${imageName}`;
+    }
+
+
+
+
+
+
+  
+    generateQRPayload(cart: Cart): string {
+      return JSON.stringify({
+        cartId: cart.id,
+        bookTitle: cart.bookTitle,
+        totalPrice: cart.totalPrice,
+        quantity: cart.quantity,
+        date: new Date(cart.createdAt).toLocaleDateString()
+      });
+    }
+  
+
+  
+    openQRModal(cart: Cart): void {
+      this.selectedCartForQR = cart;
+    }
+  
+    closeQRModal(): void {
+      this.selectedCartForQR = null;
+    }
+
+
+    toggleQRCode(cartId: number): void {
+      this.showQRForCartId = this.showQRForCartId === cartId ? null : cartId;
     }
   
 
