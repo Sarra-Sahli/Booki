@@ -1,0 +1,88 @@
+<app-navbar></app-navbar>
+
+<div class="container mt-5">
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="alert alert-danger">
+    {{error}}
+  </div>
+
+  <!-- Book details -->
+  <div *ngIf="book && !loading" class="row">
+    <!-- Image à gauche -->
+    <div class="col-md-5">
+      <img [src]="getImageUrl(book.imageUrl)" 
+           [alt]="book.title"
+           (error)="onImageError($event)"
+           class="img-fluid rounded shadow-sm">
+    </div>
+
+    <!-- Détails à droite -->
+    <div class="col-md-7" style="padding-left: 10rem;">
+      <h2 class="mb-4">{{book.title}}</h2>
+      
+      <div class="mb-3">
+        <h5 class="text-primary mb-2">Informations générales</h5>
+        <p><strong>Auteur:</strong> {{book.author}}</p>
+        <p><strong>Genre:</strong> {{book.genre}}</p>
+        <p><strong>Date de publication:</strong> {{book.publicationDate | date:'dd/MM/yyyy'}}</p>
+      </div>
+
+      <div class="mb-4">
+        <h5 class="text-primary mb-2">Résumé</h5>
+        <div class="card">
+          <div class="card-body bg-light">
+            <p class="card-text" style="text-align: justify; line-height: 1.6;">
+              {{book.resume || 'Aucun résumé disponible pour ce livre.'}}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <p class="fs-4 fw-bold text-primary" style="margin-left: 3rem;">{{book.price | number:'1.2-2'}} TND</p>
+        <p style="margin-left: 3rem;"><strong>Statut:</strong> 
+          <span [class.text-success]="book.available" 
+                [class.text-danger]="!book.available">
+            {{book.available ? 'Disponible' : 'Non disponible'}}
+          </span>
+        </p>
+        <p style="margin-left: 3rem;"><strong>Quantité en stock:</strong> {{book.quantite}}</p>
+      </div>
+
+      <div class="mb-4" *ngIf="book.rating">
+        <h5 class="text-primary mb-3">Évaluation</h5>
+        <div class="d-flex align-items-center" style="margin-left: 3rem;">
+          <div class="rating text-warning me-2">
+            <i class="bi bi-star-fill" *ngFor="let star of [].constructor(book.rating)"></i>
+          </div>
+          <span>({{book.rating}}/5)</span>
+        </div>
+      </div>
+
+      <div class="mb-4" *ngIf="book.onSale">
+        <div class="badge bg-danger p-2" style="margin-left: 3rem;">
+          Promotion: -{{book.promotionPercent}}%
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      
+    </div>
+  </div>
+
+  <!-- Bouton retour -->
+  <div class="mt-4 mb-5">
+    <a routerLink="/books" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-2"></i>Retour aux livres
+    </a>
+  </div>
+</div>
+
+<app-footer></app-footer>

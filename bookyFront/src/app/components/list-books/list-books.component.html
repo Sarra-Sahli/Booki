@@ -1,0 +1,81 @@
+
+  <!-- Main Content -->
+    <div class="header">
+      <h1>Books List</h1>
+      <button class="btn btn-primary" routerLink="/add-book">+ Ajouter un livre</button>
+    </div>
+
+    <!-- Table Controls -->
+    <div class="table-controls">
+      <input type="text" class="search-box" placeholder="Rechercher..." 
+             [(ngModel)]="searchTerm" (input)="applyFilter()">
+    </div>
+    
+    <button (click)="exportPdf()" class="btn btn-primary">
+      <i class="fas fa-file-pdf"></i> Exporter en PDF
+    </button>
+
+<div class="sort-controls">
+<div class="btn-group" role="group">
+  <button (click)="sortAscending = true; sortBooks()" class="btn btn-danger btn-sm" [class.active]="sortAscending">
+    <i class="fas fa-sort-alpha-down"></i> A → Z
+  </button>
+  <button (click)="sortAscending = false; sortBooks()" class="btn btn-danger btn-sm" [class.active]="!sortAscending">
+    <i class="fas fa-sort-alpha-down-alt"></i> Z → A
+  </button>
+</div>
+</div>
+
+   <!-- Books Table -->
+<table class="dashboard-table">
+<thead>
+  <tr>
+    <th>ID</th>
+    <th>Image</th> <!-- Nouvelle colonne -->
+    <th>Titre</th>
+    <th>Auteur</th>
+    <th>Genre</th>
+    <th>Prix</th>
+    <th>Date Publication</th>
+    <th>Quantité</th>
+    <th>Disponibilité</th>
+    <th>Actions</th>
+  </tr>
+</thead>
+<tbody>
+  <tr *ngFor="let book of filteredBooks">
+    <td>{{book.id}}</td>
+    <td>
+      <img *ngIf="book.imageUrl" 
+           [src]="book.imageUrl" 
+           [attr.data-original-src]="book.imageUrl"
+           (error)="onImageError($event)"
+           alt="Couverture du livre"
+           class="book-image"
+           style="max-width: 100px; max-height: 150px;">
+      <span *ngIf="!book.imageUrl">Pas d'image</span>
+    </td>
+    <td>{{book.title}}</td>
+    <td>{{book.author}}</td>
+    <td>{{book.genre}}</td>
+    <td>{{book.price | number:'1.2-2'}} TND</td>
+    <td>{{book.publicationDate | date:'dd/MM/yyyy'}}</td>
+    <td>{{book.quantite}}</td>
+    <td>
+      <span class="status" [ngClass]="book.available ? 'status-success' : 'status-danger'">
+        {{book.available ? 'Disponible' : 'Indisponible'}}
+      </span>
+    </td>
+    <td>
+      <button class="btn btn-danger btn-sm" [routerLink]="book.id ? ['/update-book', book.id] : []">Modifier</button>      </td>
+    <td>
+      <button class="btn btn-danger btn-sm" (click)="book.id && deleteLivre(book.id)">Supprimer</button>
+    </td>
+  </tr>
+  <tr *ngIf="filteredBooks.length === 0">
+    <td colspan="10" class="no-data">Aucun livre trouvé</td>
+  </tr>
+</tbody>
+</table>
+
+
