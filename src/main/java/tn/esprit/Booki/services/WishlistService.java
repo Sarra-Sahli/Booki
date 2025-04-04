@@ -2,7 +2,6 @@ package tn.esprit.Booki.services;
 
 import tn.esprit.Booki.entities.Wishlist;
 import tn.esprit.Booki.repositories.WishlistRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
