@@ -1,10 +1,10 @@
-package tn.esprit.Booki.services;
+package Reviews.services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import tn.esprit.Booki.entities.Reviews;
-import tn.esprit.Booki.repositories.ReviewsRepository;
+import Reviews.entities.Reviews;
+import Reviews.repositories.ReviewsRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,4 +49,11 @@ public class ReviewsService {
     public List<Reviews> getReviewsByBook(Long bookId) {
         return reviewRepository.findByBookId(bookId);
     }
+
+
+    public Double getAverageRatingForBook(Long bookId) {
+        Double avg = reviewRepository.findAverageRatingByBookId(bookId);
+        return avg != null ? avg : 0.0;
+    }
+
 }

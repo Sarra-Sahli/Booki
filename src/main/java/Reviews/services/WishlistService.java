@@ -1,12 +1,11 @@
-package tn.esprit.Booki.services;
+package Reviews.services;
 
-import tn.esprit.Booki.entities.Wishlist;
-import tn.esprit.Booki.repositories.WishlistRepository;
+import Reviews.entities.Wishlist;
+import Reviews.repositories.WishlistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -43,9 +42,30 @@ public class WishlistService {
     }
 
 
-
-    // Récupérer la wishlist d'un utilisateur
     public List<Wishlist> getWishlist(Long userId) {
         return wishlistRepository.findByUserId(userId);
     }
+
+
+    // Récupérer la wishlist d'un utilisateur
+    public List<Map<String, Object>> getTopLikedBooks() {
+        List<Object[]> results = wishlistRepository.findTopLikedBooks();
+
+        List<Map<String, Object>> topBooks = new ArrayList<>();
+
+        for (Object[] result : results) {
+            Long bookId = (Long) result[0];
+            Long likeCount = (Long) result[1];
+
+            Map<String, Object> bookData = new HashMap<>();
+            bookData.put("bookId", bookId);
+            bookData.put("likeCount", likeCount);
+
+            topBooks.add(bookData);
+        }
+
+        return topBooks;
+    }
+
+
 }

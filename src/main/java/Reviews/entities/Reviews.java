@@ -1,4 +1,4 @@
-package tn.esprit.Booki.entities;
+package Reviews.entities;
 
 
 import jakarta.persistence.*;

@@ -1,10 +1,13 @@
-package tn.esprit.Booki.controllers;
+package Reviews.controllers;
 
 
-import tn.esprit.Booki.services.WishlistService;
+import Reviews.services.WishlistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/wishlist")
@@ -25,4 +28,11 @@ public class WishlistController {
     public ResponseEntity<?> getWishlist(@PathVariable Long userId) {
         return ResponseEntity.ok(wishlistService.getWishlist(userId));
     }
+
+    @GetMapping("/top-liked")
+    public ResponseEntity<List<Map<String, Object>>> getTopLikedBooks() {
+        return ResponseEntity.ok(wishlistService.getTopLikedBooks());
+    }
+
+
 }

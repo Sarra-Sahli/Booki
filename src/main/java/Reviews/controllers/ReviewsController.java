@@ -1,10 +1,10 @@
-package tn.esprit.Booki.controllers;
+package Reviews.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.Booki.entities.Reviews;
-import tn.esprit.Booki.services.ReviewsService;
+import Reviews.entities.Reviews;
+import Reviews.services.ReviewsService;
 
 import java.util.List;
 
@@ -45,4 +45,10 @@ public class ReviewsController {
         List<Reviews> reviews = reviewService.getReviewsByBook(bookId);
         return ResponseEntity.ok(reviews);
     }
+
+    @GetMapping("/average/{bookId}")
+    public ResponseEntity<Double> getAverageRating(@PathVariable Long bookId) {
+        return ResponseEntity.ok(reviewService.getAverageRatingForBook(bookId));
+    }
+
 }
