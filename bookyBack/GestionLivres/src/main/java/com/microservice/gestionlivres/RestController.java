@@ -4,11 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.gestionlivres.Entites.Books;
 import com.microservice.gestionlivres.Services.Services;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,11 +65,18 @@ public class RestController {
             return ResponseEntity.status(500)
                     .body("Erreur lors de l'upload: " + e.getMessage());
         }
-    }  // <-- Ici était l'accolade en trop
+    }
 
     @PostMapping("/AjoutLivre")
-    public Books ajouterBook(@RequestBody Books book) {
-        return services.ajouterBook(book);
+    public ResponseEntity<?> ajouterBook(@Valid @RequestBody Books book) {
+        try {
+            Books savedBook = services.ajouterBook(book);
+            return ResponseEntity.ok(savedBook);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @GetMapping("/ShowAllLivre")
@@ -96,7 +106,7 @@ public class RestController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> updateBook(
             @PathVariable int id,
-            @RequestPart("book") String bookJson,
+            @Valid @RequestPart("book") String bookJson,
             @RequestPart(value = "file", required = false) MultipartFile file) {
 
         Map<String, Object> response = new HashMap<>();
@@ -154,6 +164,18 @@ public class RestController {
     @GetMapping("books/{id}")
     Books getById(@PathVariable Long id){
         return services.getById(id);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ResponseEntity.badRequest().body(errors);
     }
 
 

@@ -1,6 +1,7 @@
 package com.microservice.gestionlivres.Entites;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.util.Date;
 
 @Entity
@@ -9,24 +10,51 @@ public class Books {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Le titre est obligatoire")
+    @Size(min = 2, max = 100, message = "Le titre doit contenir entre 2 et 100 caractères")
     private String title;
+
+    @NotBlank(message = "L'auteur est obligatoire")
+    @Size(min = 2, max = 100, message = "Le nom de l'auteur doit contenir entre 2 et 100 caractères")
     private String author;
+
+    @Size(max = 2000, message = "Le résumé ne doit pas dépasser 2000 caractères")
     private String Resume;
+
+    @NotNull(message = "Le prix est obligatoire")
+    @Positive(message = "Le prix doit être positif")
+    @DecimalMin(value = "0.01", message = "Le prix minimum est de 0.01")
     private Double price;
+
+    @NotNull(message = "La disponibilité doit être spécifiée")
     private Boolean available;
+
+    @NotNull(message = "La quantité est obligatoire")
+    @Min(value = 0, message = "La quantité ne peut pas être négative")
     private Integer quantite;
+
     private String imageUrl;
 
     // Nouveaux champs pour la promotion
     private Boolean onSale = false;
+    
+    @Min(value = 0, message = "Le pourcentage de promotion ne peut pas être négatif")
+    @Max(value = 100, message = "Le pourcentage de promotion ne peut pas dépasser 100")
     private Integer promotionPercent = 0;
+
+    @Positive(message = "Le prix original doit être positif")
     private Double originalPrice;
 
+    @NotNull(message = "Le genre est obligatoire")
     @Enumerated(EnumType.STRING)
     private Genre genre;
+
+    @NotNull(message = "La langue est obligatoire")
     @Enumerated(EnumType.STRING)
     private Language language;
 
+    @NotNull(message = "La date de publication est obligatoire")
+    @Past(message = "La date de publication doit être dans le passé")
     @Temporal(TemporalType.DATE)
     private Date publicationDate;
 
