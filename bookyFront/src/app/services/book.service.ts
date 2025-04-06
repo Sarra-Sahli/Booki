@@ -128,4 +128,8 @@ export class BookService {
   deleteLivre(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/deleteLivre/${id}`);
   }
+
+  applyPromotion(bookId: number, promotionPercent: number): Observable<Book> {
+    return this.http.post<Book>(`${this.apiUrl}/applyPromotion/${bookId}?promotionPercent=${promotionPercent}`, {});
+  }
 }

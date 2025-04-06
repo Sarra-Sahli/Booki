@@ -12,10 +12,11 @@ export class AddBookComponent {
   book: Book = {
     title: '',
     author: '',
-    genre: 'ROMANCE',
+    genre: '',
     price: 0,
+    originalPrice: 0,
     available: true,
-    publicationDate: new Date().toISOString(),
+    publicationDate: new Date().toISOString().split('T')[0],
     imageUrl: '',
     quantite: 0,
     language: Language.FRANCAIS,

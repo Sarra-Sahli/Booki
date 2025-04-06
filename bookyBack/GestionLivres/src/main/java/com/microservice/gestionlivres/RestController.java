@@ -123,6 +123,15 @@ public class RestController {
         return services.getBookById(id);
     }
 
+    @PostMapping("/applyPromotion/{id}")
+    public ResponseEntity<?> applyPromotion(@PathVariable Long id, @RequestParam Integer promotionPercent) {
+        Books updatedBook = services.applyPromotion(id, promotionPercent);
+        if (updatedBook != null) {
+            return ResponseEntity.ok(updatedBook);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @GetMapping("/LivrePdf")
     public ResponseEntity<byte[]> exportBooksToPdf() {
         try {
@@ -146,6 +155,8 @@ public class RestController {
     Books getById(@PathVariable Long id){
         return services.getById(id);
     }
+
+
 
 
 

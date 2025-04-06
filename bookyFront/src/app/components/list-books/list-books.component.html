@@ -31,11 +31,13 @@
 <thead>
   <tr>
     <th>ID</th>
-    <th>Image</th> <!-- Nouvelle colonne -->
+    <th>Image</th>
     <th>Titre</th>
     <th>Auteur</th>
     <th>Genre</th>
-    <th>Prix</th>
+    <th>Prix Original</th>
+    <th>Promotion</th>
+    <th>Prix Final</th>
     <th>Date Publication</th>
     <th>Quantité</th>
     <th>Disponibilité</th>
@@ -47,8 +49,8 @@
     <td>{{book.id}}</td>
     <td>
       <img *ngIf="book.imageUrl" 
-           [src]="book.imageUrl" 
-           [attr.data-original-src]="book.imageUrl"
+           [src]="getImageUrl(book.imageUrl)" 
+           [attr.data-original-src]="getImageUrl(book.imageUrl)"
            (error)="onImageError($event)"
            alt="Couverture du livre"
            class="book-image"
@@ -58,7 +60,24 @@
     <td>{{book.title}}</td>
     <td>{{book.author}}</td>
     <td>{{book.genre}}</td>
-    <td>{{book.price | number:'1.2-2'}} TND</td>
+    <td>{{book.originalPrice || book.price | number:'1.2-2'}} TND</td>
+    <td>
+      <div class="promotion-controls">
+        <input type="number" 
+               [value]="book.promotionPercent || 0" 
+               (change)="updatePromotion(book.id!, $event)"
+               min="0" 
+               max="100" 
+               class="promotion-input"
+               placeholder="%" 
+               style="width: 70px;">
+        <span>%</span>
+      </div>
+    </td>
+    <td>
+      <span [class.on-sale]="book.onSale">{{book.price | number:'1.2-2'}} TND</span>
+      <span *ngIf="book.onSale" class="promotion-badge">-{{book.promotionPercent}}%</span>
+    </td>
     <td>{{book.publicationDate | date:'dd/MM/yyyy'}}</td>
     <td>{{book.quantite}}</td>
     <td>
@@ -67,13 +86,12 @@
       </span>
     </td>
     <td>
-      <button class="btn btn-danger btn-sm" [routerLink]="book.id ? ['/update-book', book.id] : []">Modifier</button>      </td>
-    <td>
+      <button class="btn btn-danger btn-sm" [routerLink]="book.id ? ['/update-book', book.id] : []">Modifier</button>
       <button class="btn btn-danger btn-sm" (click)="book.id && deleteLivre(book.id)">Supprimer</button>
     </td>
   </tr>
   <tr *ngIf="filteredBooks.length === 0">
-    <td colspan="10" class="no-data">Aucun livre trouvé</td>
+    <td colspan="12" class="no-data">Aucun livre trouvé</td>
   </tr>
 </tbody>
 </table>

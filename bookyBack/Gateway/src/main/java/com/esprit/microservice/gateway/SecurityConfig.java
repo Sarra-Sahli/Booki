@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/eureka/**").permitAll()
                         .pathMatchers("/carts/**").permitAll()
-                        .pathMatchers("/books/**").permitAll() // Allow access to book endpoints
+                        .pathMatchers("/**").permitAll() // Allow access to book endpoints
                         .anyExchange().authenticated()
                 ).oauth2ResourceServer(oauth -> oauth
                         .jwt(Customizer.withDefaults())

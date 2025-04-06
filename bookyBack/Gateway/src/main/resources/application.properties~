@@ -1,3 +1,0 @@
-spring.application.name=Gateway
-server.port=8083
-g.cloud.gateway.routes[1].predicates[1]=Path=/jobs/**

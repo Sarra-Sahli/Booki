@@ -11,9 +11,10 @@ export interface Book {
     author: string;
     genre: string;
     price: number;
+    originalPrice: number;  // Changé de optionnel à requis
     available: boolean;
     imageUrl?: string; // Ajoutez ce champ
-    publicationDate: string;
+    publicationDate: string; // Changé de Date à string pour la compatibilité
     rating?: number;
     soldQuantity?: number;
     onSale?: boolean;
