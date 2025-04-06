@@ -2,6 +2,7 @@ package Reviews.services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import Reviews.entities.Reviews;
 import Reviews.repositories.ReviewsRepository;
@@ -15,10 +16,20 @@ public class ReviewsService {
 
     private final ReviewsRepository reviewRepository;
 
+    @Autowired
+    private ProfanityFilterService profanityFilterService;
+
     // Ajouter une review
-    public Reviews createReview(Reviews review) {
+    public Reviews addReview(Reviews review) {
+        // Vérifie si le commentaire contient des mots inappropriés
+        if (profanityFilterService.containsBadWords(review.getComment())) {
+            // Ajoute un log pour comprendre ce qui se passe
+            System.out.println("Bad words detected in comment: " + review.getComment());
+            throw new IllegalArgumentException("Le commentaire contient des mots inappropriés !");
+        }
         return reviewRepository.save(review);
     }
+
 
     // Mettre à jour une review
     @Transactional
