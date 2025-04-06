@@ -16,6 +16,8 @@ export class ListBooksComponent implements OnInit {
   sortedBooks: Book[] = [];
   sortAscending = true;
   private apiUrl = environment.apiUrl; // Utilisez toujours environment.apiUrl
+  readonly LOW_STOCK_THRESHOLD = 5;
+  readonly CRITICAL_STOCK_THRESHOLD = 2;
 
   constructor(private bookService: BookService) {}
 
@@ -170,5 +172,18 @@ export class ListBooksComponent implements OnInit {
         }
       });
     }
+  }
+
+  getLowStockBooks(): Book[] {
+    return this.books.filter(book => book.quantite < this.LOW_STOCK_THRESHOLD)
+      .sort((a, b) => a.quantite - b.quantite); // Trier par quantité croissante
+  }
+
+  isLowStock(quantity: number): boolean {
+    return quantity < this.LOW_STOCK_THRESHOLD;
+  }
+
+  isCriticalStock(quantity: number): boolean {
+    return quantity <= this.CRITICAL_STOCK_THRESHOLD;
   }
 }
