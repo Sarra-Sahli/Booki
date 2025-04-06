@@ -176,7 +176,7 @@ public class PaymentServiceImpl implements IPaymentService {
         context.setVariable("amount", payment.getAmount());
         context.setVariable("paymentDate", payment.getPaymentDate()); // Envoyez directement l'objet LocalDateTime
         context.setVariable("paymentId", payment.getId());
-        context.setVariable("orderLink", "http://localhost:4200/home");
+        context.setVariable("orderLink", "https:/");
 
         // Génération du HTML
         String htmlContent = templateEngine.process("email-template", context);

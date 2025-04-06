@@ -24,7 +24,8 @@ public class GatewayApplication {
                // .route("book-service", r -> r.path("/**")
                  //       .uri("lb://GestionLivres"))
                 .route("payment", r -> r.path("/payment/**")
-                        .uri("lb://BOOKSTORE"))
+                        //.uri("lb://BOOKSTORE"))
+                        .uri("http://localhost:8085"))
                 .build();
     }
 

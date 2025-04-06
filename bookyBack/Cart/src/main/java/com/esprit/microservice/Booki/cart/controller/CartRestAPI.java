@@ -76,7 +76,11 @@ public class CartRestAPI {
         return ResponseEntity.ok(cartItems);
     }
 
-
+   /* @GetMapping("/{cartId}")
+    public ResponseEntity<Cart> getCartItemById(@PathVariable Long cartId) {
+        Cart cartItem = cartService.getCartItemById(cartId);
+        return ResponseEntity.ok(cartItem);
+    }*/
 
 
 }

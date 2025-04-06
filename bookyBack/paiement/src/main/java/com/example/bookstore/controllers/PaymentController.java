@@ -6,6 +6,7 @@ import com.example.bookstore.services.IPaymentService;
 import com.example.bookstore.services.PdfGeneratorService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -16,6 +17,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.Stripe;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
@@ -46,24 +48,25 @@ public class PaymentController {
         }
     }
 
-    /*@GetMapping("/success")
-    public String paymentSuccess(@RequestParam String sessionId) {
+    @GetMapping("/success")
+    public String paymentSuccess(@RequestParam String sessionId) throws MessagingException, UnsupportedEncodingException {
         iPaymentService.updatePaymentStatus(sessionId, PaymentStatus.SUCCEEDED);
         return "Le paiement a été effectué avec succès !";
     }
 
     @GetMapping("/cancel")
-    public String paymentCancel(@RequestParam String sessionId) {
+    public String paymentCancel(@RequestParam String sessionId) throws MessagingException, UnsupportedEncodingException {
         iPaymentService.updatePaymentStatus(sessionId, PaymentStatus.CANCELED);
         return "Le paiement a été annulé.";
-    }*/
+    }
 
     @DeleteMapping("/{paymentId}")
     public void deletePayment(@PathVariable Long paymentId) {
         iPaymentService.deletePayment(paymentId);
     }
+
     @GetMapping("/payment-status")
-    public PaymentStatus checkPaymentStatus(@RequestParam String sessionId) throws StripeException {
+    public PaymentStatus checkPaymentStatus(@RequestParam String sessionId) throws StripeException, MessagingException, UnsupportedEncodingException {
         return iPaymentService.checkAndUpdatePaymentStatus(sessionId);
     }
 

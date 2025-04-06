@@ -355,4 +355,10 @@ public class CartService {
     public void clearCart() {
         cartRepository.deleteAll();
     }
+
+
+    /*public Cart getCartItemById(Long cartId) {
+        return cartRepository.findById(cartId)
+                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+    }*/
 }
