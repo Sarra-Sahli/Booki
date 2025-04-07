@@ -101,11 +101,4 @@ public class PaymentController {
     public List<Payment> searchPaymentsByBookTitle(@RequestParam String bookTitle) {
         return iPaymentService.findByBookTitleContaining(bookTitle);
     }
-
-
-    @GetMapping("/sorted")
-    public List<Payment> getPaymentsSortedByBookTitle(
-            @RequestParam(defaultValue = "asc") String sortOrder) {
-        return iPaymentService.findAllSortedByBookTitle(sortOrder);
-    }
 }

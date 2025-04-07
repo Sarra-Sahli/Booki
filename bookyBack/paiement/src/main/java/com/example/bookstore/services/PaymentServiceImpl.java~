@@ -176,7 +176,7 @@ public class PaymentServiceImpl implements IPaymentService {
         context.setVariable("amount", payment.getAmount());
         context.setVariable("paymentDate", payment.getPaymentDate()); // Envoyez directement l'objet LocalDateTime
         context.setVariable("paymentId", payment.getId());
-        context.setVariable("orderLink", "https:/");
+        context.setVariable("orderLink", "http://localhost:4200/home");
 
         // Génération du HTML
         String htmlContent = templateEngine.process("email-template", context);
@@ -227,6 +227,11 @@ public class PaymentServiceImpl implements IPaymentService {
             throw new EntityNotFoundException("Paiement introuvable !");
         }
         paymentRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Payment> findByBookTitleContaining(String bookTitle) {
+        return paymentRepository.findByBookTitleContainingIgnoreCase(bookTitle);
     }
 
 

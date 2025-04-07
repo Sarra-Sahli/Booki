@@ -229,5 +229,20 @@ public class PaymentServiceImpl implements IPaymentService {
         paymentRepository.deleteById(id);
     }
 
+    @Override
+    public List<Payment> findByBookTitleContaining(String bookTitle) {
+        return paymentRepository.findByBookTitleContainingIgnoreCase(bookTitle);
+    }
+
+
+    @Override
+    public List<Payment> findAllSortedByBookTitle(String sortOrder) {
+        if ("desc".equalsIgnoreCase(sortOrder)) {
+            return paymentRepository.findAllByOrderByBookTitleDesc();
+        } else {
+            return paymentRepository.findAllByOrderByBookTitleAsc();
+        }
+    }
+
 
 }

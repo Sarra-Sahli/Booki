@@ -19,6 +19,10 @@ public interface IPaymentService {
     public PaymentStatus checkAndUpdatePaymentStatus(String sessionId) throws StripeException, MessagingException, UnsupportedEncodingException  ;
     public void deletePayment(Long id) ;
 
+    List<Payment> findByBookTitleContaining(String bookTitle);
+
+
+    public List<Payment> findAllSortedByBookTitle(String sortOrder);
 
 
 
