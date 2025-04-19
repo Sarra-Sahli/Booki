@@ -20,9 +20,6 @@ public  interface BookClient {
     @GetMapping("books/{id}")
     Books getById(@PathVariable Long id);
 
-    //@PutMapping("/UpdateLivre/{id}")
-    //String modifierBook(@PathVariable int id, @RequestBody Books updatedBook);
-
 
     @PutMapping(value = "/UpdateLivre/{id}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,

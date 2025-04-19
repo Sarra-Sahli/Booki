@@ -20,7 +20,6 @@
                     <option value="all">All Carts</option>
                     <option value="today">Today</option>
                     <option value="week">This Week</option>
-                    <option value="month">This Month</option>
                 </select>
             </div>
         </div>
@@ -32,8 +31,8 @@
 <!-- Cart Grid -->
 <div class="cart-grid">
     <!-- Cart Card -->
-    <div class="cart-card" *ngFor="let cart of filteredCarts">
-        <div class="cart-header">
+    <div class="cart-card" *ngFor="let cart of paginatedCarts">
+                <div class="cart-header">
             <h3>Cart #{{cart.id}}</h3>
             <span class="cart-date">{{cart.createdAt | date:'mediumDate'}}</span>
         </div>
@@ -62,6 +61,9 @@
                     </div>
                 </div>
             </div>
+
+
+            
         </div>
         
         <!-- Footer with Total -->
@@ -75,6 +77,60 @@
           </div>
          </div>
         </div>
+
+
+        <!-- Add this after your cart-grid div -->
+<!-- <div *ngIf="totalItems > itemsPerPage" class="pagination-controls">
+    <button 
+      (click)="onPageChange(currentPage - 1)" 
+      [disabled]="currentPage === 1"
+      class="pagination-button">
+      &lt; Previous
+    </button>
+    
+    <button 
+      *ngFor="let page of pages" 
+      (click)="onPageChange(page)"
+      [class.active]="page === currentPage"
+      class="pagination-button">
+      {{ page }}
+    </button>
+    
+    <button 
+      (click)="onPageChange(currentPage + 1)" 
+      [disabled]="currentPage === totalPages"
+      class="pagination-button">
+      Next &gt;
+    </button>
+  </div> -->
+
+
+  <!-- Replace your existing pagination div with this -->
+<div *ngIf="totalItems > itemsPerPage" class="pagination-container">
+    <div class="pagination-controls">
+      <button 
+        (click)="onPageChange(currentPage - 1)" 
+        [disabled]="currentPage === 1"
+        class="pagination-button">
+      Previous
+      </button>
+      
+      <button 
+        *ngFor="let page of pages" 
+        (click)="onPageChange(page)"
+        [class.active]="page === currentPage"
+        class="pagination-button">
+        {{ page }}
+      </button>
+      
+      <button 
+        (click)="onPageChange(currentPage + 1)" 
+        [disabled]="currentPage === totalPages"
+        class="pagination-button">
+        Next 
+      </button>
+    </div>
+  </div>
         
         <!-- Single Modal for QR Code (outside the *ngFor) -->
         <div class="qr-modal" *ngIf="selectedCartForQR" (click)="closeQRModal()">
@@ -90,7 +146,7 @@
                     [colorLight]="'#ffffff'"></qrcode>
 
 <!-- Empty State -->
-<div *ngIf="filteredCarts.length === 0" class="empty-state">
+<div *ngIf="paginatedCarts.length === 0" class="empty-state">
     <h3>No carts found</h3>
     <p *ngIf="searchTerm || filterCriteria !== 'all'">No carts match your search/filter criteria</p>
     <p *ngIf="!searchTerm && filterCriteria === 'all'">There are currently no shopping carts in the system</p>

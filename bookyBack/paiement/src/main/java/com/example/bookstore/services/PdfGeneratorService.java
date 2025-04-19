@@ -49,6 +49,14 @@ public class PdfGeneratorService {
                 yPosition -= lineSpacing;
 
                 drawText(contentStream, fontRegular, 10, margin, yPosition,
+                        "Client: " + safeString(payment.getUsername())); // Utilisation du username
+                yPosition -= lineSpacing;
+
+                drawText(contentStream, fontRegular, 10, margin, yPosition,
+                        "Email: " + safeString(payment.getCustomerEmail())); // Email séparé
+                yPosition -= 40;
+
+                drawText(contentStream, fontRegular, 10, margin, yPosition,
                         "Client: " + safeString(payment.getCustomerEmail()));
                 yPosition -= 40;
 

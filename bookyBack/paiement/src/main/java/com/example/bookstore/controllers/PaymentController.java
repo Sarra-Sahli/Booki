@@ -30,8 +30,8 @@ public class PaymentController {
     private PdfGeneratorService pdfGeneratorService;
 
     @PostMapping("/create-session")
-    public Map<String, String> createCheckoutSession(@RequestParam Long cartId,@RequestParam String customerEmail) throws StripeException {
-        String sessionUrl = iPaymentService.createCheckoutSession(cartId, customerEmail);
+    public Map<String, String> createCheckoutSession(@RequestParam Long cartId,@RequestParam Long userId) throws StripeException {
+        String sessionUrl = iPaymentService.createCheckoutSession(cartId, userId);
         return Map.of("url", sessionUrl);
     }
 

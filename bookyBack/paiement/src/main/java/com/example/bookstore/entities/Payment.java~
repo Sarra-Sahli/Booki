@@ -20,18 +20,15 @@ public class Payment {
     private Long id;
 
     private Long cartId;
+    private Long UserId;
 
     private Long bookId;
-    @Transient // Ne sera pas persisté en base
     private String bookTitle;
 
-    @Transient
     private String bookImageUrl;
 
-    @Transient
     private Integer quantity;
 
-    @Transient
     private Double bookPrice;
 
     private String stripeSessionId;

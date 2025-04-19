@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../../services/cart.service';
 import { Chart, registerables } from 'chart.js';
+import { Book } from 'src/app/models/Books';
+import { BookService } from 'src/app/services/book.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,15 +10,20 @@ import { Chart, registerables } from 'chart.js';
   styleUrls: ['./dashborad.component.css']
 })
 export class DashboardComponent implements OnInit {
-  chart: any;
+  pieChart: any;
+  barChart: any;
   bookStats: {bookTitle: string, totalQuantity: number}[] = [];
+  books: Book[] = [];
+  readonly LOW_STOCK_THRESHOLD = 5;
+  readonly CRITICAL_STOCK_THRESHOLD = 2;
 
-  constructor(private cartService: CartService) {
+  constructor(private cartService: CartService, private bookService: BookService) {
     Chart.register(...registerables);
   }
 
   ngOnInit(): void {
     this.loadCartData();
+    this.loadBooks();
   }
 
   loadCartData(): void {
@@ -47,33 +54,32 @@ export class DashboardComponent implements OnInit {
   }
 
   createPieChart(): void {
-    const ctx = document.getElementById('bookChart') as HTMLCanvasElement;
+    const ctx = document.getElementById('pieChart') as HTMLCanvasElement;
     
-    if (this.chart) {
-      this.chart.destroy();
+    if (this.pieChart) {
+      this.pieChart.destroy();
     }
 
-    // Generate distinct colors for each segment
     const backgroundColors = this.generateDistinctColors(this.bookStats.length);
 
-    this.chart = new Chart(ctx, {
+    this.pieChart = new Chart(ctx, {
       type: 'pie',
       data: {
         labels: this.bookStats.map(item => item.bookTitle),
         datasets: [{
           data: this.bookStats.map(item => item.totalQuantity),
           backgroundColor: backgroundColors,
-          borderColor: 'var(--card-bg)',
+          borderColor: 'white',
           borderWidth: 2
         }]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             position: 'right',
             labels: {
-              color: 'var(--text-color)',
               font: {
                 size: 12
               }
@@ -84,9 +90,9 @@ export class DashboardComponent implements OnInit {
               label: function(context) {
                 const label = context.label || '';
                 const value = context.raw || 0;
-                const total = context.dataset.data.reduce((acc, data) => acc + data, 0);
+                const total = context.dataset.data.reduce((acc: number, data: any) => acc + data, 0);
                 const percentage = Math.round((Number(value) / Number(total)) * 100);
-                return `${label}: ${value} units (${percentage}%)`;
+                return `${label}: ${value} unités (${percentage}%)`;
               }
             }
           }
@@ -95,13 +101,76 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  getPercentage(totalQuantity: number): number {
-    const total = this.bookStats.reduce((sum, item) => sum + item.totalQuantity, 0);
-    return (totalQuantity / total) * 100;
+  loadBooks(): void {
+    this.bookService.getBooks().subscribe({
+      next: (data: Book[]) => {
+        this.books = data;
+        this.createBarChart();
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des livres:', error);
+      }
+    });
+  }
+
+  createBarChart(): void {
+    const ctx = document.getElementById('barChart') as HTMLCanvasElement;
+    if (!ctx) return;
+
+    if (this.barChart) {
+      this.barChart.destroy();
+    }
+
+    const bookData = this.books
+      .sort((a, b) => (b.soldQuantity || 0) - (a.soldQuantity || 0))
+      .slice(0, 5);
+
+    this.barChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: bookData.map(book => book.title),
+        datasets: [{
+          label: 'Quantité vendue',
+          data: bookData.map(book => book.soldQuantity || 0),
+          backgroundColor: '#4361ee',
+          borderColor: '#3a56d4',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Nombre d\'exemplaires vendus'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Titres des livres'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  getLowStockBooks(): Book[] {
+    return this.books
+      .filter(book => book.quantite < this.LOW_STOCK_THRESHOLD)
+      .sort((a, b) => a.quantite - b.quantite);
   }
 
   generateDistinctColors(count: number): string[] {
-    // A palette of 20 distinct colors
     const colorPalette = [
       '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
       '#FF9F40', '#8AC24A', '#EA5F89', '#00BCD4', '#F06292',
@@ -109,7 +178,6 @@ export class DashboardComponent implements OnInit {
       '#FF5722', '#607D8B', '#795548', '#9C27B0', '#2196F3'
     ];
     
-    // If we need more colors than in the palette, we'll cycle through them
     const colors = [];
     for (let i = 0; i < count; i++) {
       colors.push(colorPalette[i % colorPalette.length]);

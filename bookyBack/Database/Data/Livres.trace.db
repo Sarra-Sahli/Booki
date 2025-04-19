@@ -227,3 +227,11 @@ Caused by: org.h2.mvstore.MVStoreException: The file is locked: C:/Users/Sarra/D
 	at org.h2.mvstore.SingleFileStore.open(SingleFileStore.java:81)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:286)
 	... 58 more
+2025-04-06 18:37:17.875165+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Valeur trop longue pour la colonne "RESUME CHARACTER VARYING(255)": "U&'Publi\\00e9 en 1942, l''\\00c9tranger retrace l''histoire d''un homme ordinaire... (281)"
+Value too long for column "RESUME CHARACTER VARYING(255)": "U&'Publi\\00e9 en 1942, l''\\00c9tranger retrace l''histoire d''un homme ordinaire... (281)"; SQL statement:
+update books set resume=?,author=?,available=?,genre=?,image_url=?,language=?,on_sale=?,original_price=?,price=?,promotion_percent=?,publication_date=?,quantite=?,title=? where id=? [22001-232]
+2025-04-07 08:09:02.510625+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Valeur trop longue pour la colonne "RESUME CHARACTER VARYING(200)": "U&'Harry Potter, un jeune orphelin, est \\00e9lev\\00e9 par son oncle et sa tante ... (217)"
+Value too long for column "RESUME CHARACTER VARYING(200)": "U&'Harry Potter, un jeune orphelin, est \\00e9lev\\00e9 par son oncle et sa tante ... (217)"; SQL statement:
+INSERT INTO "PUBLIC"."BOOKS_COPY_3_0"("ID", "AUTHOR", "AVAILABLE", "GENRE", "IMAGE_URL", "PRICE", "PUBLICATION_DATE", "QUANTITE", "TITLE", "RESUME", "LANGUAGE", "ON_SALE", "ORIGINAL_PRICE", "PROMOTION_PERCENT") OVERRIDING SYSTEM VALUE SELECT "ID", "AUTHOR", "AVAILABLE", "GENRE", "IMAGE_URL", "PRICE", "PUBLICATION_DATE", "QUANTITE", "TITLE", "RESUME", "LANGUAGE", "ON_SALE", "ORIGINAL_PRICE", "PROMOTION_PERCENT" FROM "PUBLIC"."BOOKS" [22001-232]

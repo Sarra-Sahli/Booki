@@ -31,6 +31,7 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
   searchTerm: string = '';
   sortAscending: boolean = true;
   selectedLanguage: string = 'all';
+  showPromotionsOnly: boolean = false;
 
   constructor(
     private bookService: BookService,
@@ -113,7 +114,7 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
     this.bookService.getBooks().subscribe({
       next: (books) => {
         this.books = books;
-        this.applyFilters();
+        this.applyFilter();
         this.loading = false;
       },
       error: (error) => {
@@ -183,57 +184,65 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
 
   toggleSort(): void {
     this.sortAscending = !this.sortAscending;
-    this.filteredBooks.sort((a, b) => {
-      return this.sortAscending ? 
-        a.price - b.price : 
-        b.price - a.price;
-    });
+    this.applyFilter();
   }
 
   filterByLanguage(language: string): void {
     this.selectedLanguage = language;
-    this.applyFilters();
+    this.showPromotionsOnly = false;
+    this.applyFilter();
   }
 
-  applyFilters(): void {
+  togglePromotions(): void {
+    this.showPromotionsOnly = !this.showPromotionsOnly;
+    this.selectedLanguage = 'all';
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
     let filtered = [...this.books];
 
-    // Appliquer le filtre de recherche
-    if (this.searchTerm.trim()) {
-      const searchLower = this.searchTerm.toLowerCase();
+    // Filtre par langue
+    if (this.selectedLanguage !== 'all') {
       filtered = filtered.filter(book => 
-        book.title.toLowerCase().includes(searchLower) ||
-        book.author.toLowerCase().includes(searchLower) ||
-        book.genre.toLowerCase().includes(searchLower)
+        book.language.toLowerCase() === this.selectedLanguage.toLowerCase()
       );
     }
 
-    // Appliquer le filtre de langue
-    if (this.selectedLanguage !== 'all') {
-      filtered = filtered.filter(book => {
-        switch (this.selectedLanguage) {
-          case 'français':
-            return book.language === Language.FRANCAIS;
-          case 'arabe':
-            return book.language === Language.ARABE;
-          case 'anglais':
-            return book.language === Language.ANGLAIS;
-          default:
-            return true;
-        }
-      });
+    // Filtre par promotion
+    if (this.showPromotionsOnly) {
+      filtered = filtered.filter(book => book.onSale);
     }
 
-    // Appliquer le tri
-    if (this.sortAscending !== undefined) {
-      filtered.sort((a, b) => this.sortAscending ? a.price - b.price : b.price - a.price);
+    // Filtre par recherche
+    if (this.searchTerm) {
+      const search = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(book =>
+        book.title.toLowerCase().includes(search) ||
+        book.author.toLowerCase().includes(search) ||
+        book.genre.toLowerCase().includes(search)
+      );
     }
+
+    // Tri
+    filtered.sort((a, b) => {
+      const comparison = a.title.localeCompare(b.title);
+      return this.sortAscending ? comparison : -comparison;
+    });
 
     this.filteredBooks = filtered;
   }
 
-  applyFilter(): void {
-    this.applyFilters();
+  getFilterTitle(): string {
+    if (this.showPromotionsOnly) {
+      return 'Livres en promotion';
+    }
+    switch (this.selectedLanguage) {
+      case 'français': return 'Livres Français';
+      case 'arabe': return 'Livres Arabes';
+      case 'anglais': return 'Livres Anglais';
+      default: return 'Tous nos livres';
+    }
   }
 
   getImageUrl(imageUrl: string | undefined): string {
@@ -257,22 +266,6 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
   }
 
   isAddingToCart = false;
-
-  // addToCart(book: any) {
-  //   this.isAddingToCart = true;
-  //   const quantity = 1;
-    
-  //   this.cartService.addToCart(book.id, quantity).subscribe({
-  //     next: (response) => {
-  //       this.isAddingToCart = false;
-  //     },
-  //     error: (err) => {
-  //       console.error('Error adding to cart:', err);
-  //       this.isAddingToCart = false;
-  //     }
-  //   });
-  // }
-
 
   addToCart(book: any) {
     this.isAddingToCart = true;

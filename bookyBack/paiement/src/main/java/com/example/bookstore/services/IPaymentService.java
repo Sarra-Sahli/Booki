@@ -11,7 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public interface IPaymentService {
-    String createCheckoutSession(Long cartId, String customerEmail) throws StripeException;
+    String createCheckoutSession(Long cartId, Long userId) throws StripeException;
     void updatePaymentStatus(String sessionId, PaymentStatus status) throws MessagingException, UnsupportedEncodingException;
     public String retryPayment(Long paymentId) throws StripeException;
     List<Payment> getAllPayments();

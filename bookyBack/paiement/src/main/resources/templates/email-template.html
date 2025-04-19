@@ -30,7 +30,7 @@
         <p>Votre paiement pour <strong th:text="${bookTitle}">[Titre du livre]</strong> a été confirmé.</p>
         <p>Détails :</p>
         <ul>
-            <li>Montant : <strong th:text="${#numbers.formatDecimal(amount, 1, 2)} + ' EUR'">[Montant] EUR</strong></li>
+            <li>Montant : <strong th:text="${#numbers.formatDecimal(amount, 1, 2)} + ' EUR'">[Montant] TND</strong></li>
             <li>Date : <span th:text="${#temporals.format(paymentDate, 'dd/MM/yyyy HH:mm')}">[Date]</span></li>
             <li>Référence : <span th:text="${paymentId}">[ID]</span></li>
         </ul>

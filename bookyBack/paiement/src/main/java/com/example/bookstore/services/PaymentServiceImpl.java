@@ -1,7 +1,9 @@
 package com.example.bookstore.services;
 
+import com.example.bookstore.UserServiceClient;
 import com.example.bookstore.client.CartServiceClient;
 import com.example.bookstore.dto.CartCheckoutDTO;
+import com.example.bookstore.dto.UserDTO;
 import com.example.bookstore.entities.Payment;
 import com.example.bookstore.entities.PaymentMethods;
 import com.example.bookstore.entities.PaymentStatus;
@@ -45,16 +47,21 @@ public class PaymentServiceImpl implements IPaymentService {
     private CartServiceClient cartServiceClient;
 
     @Autowired
+    private UserServiceClient userServiceClient;
+
+    @Autowired
     private JavaMailSender mailSender;
 
     @Autowired
     private TemplateEngine templateEngine;
 
     @Override
-    public String createCheckoutSession(Long cartId, String customerEmail) throws StripeException {
+    public String createCheckoutSession(Long cartId,Long userId) throws StripeException {
         Stripe.apiKey = stripeSecretKey;
 
         CartCheckoutDTO cart = cartServiceClient.getCartById(cartId);
+        UserDTO user = userServiceClient.getUserById(userId);
+
 
         // Configuration des articles du panier
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
@@ -83,7 +90,7 @@ public class PaymentServiceImpl implements IPaymentService {
                 .setSuccessUrl("http://localhost:8085/payment/success?sessionId={CHECKOUT_SESSION_ID}")
                 .setCancelUrl("http://localhost:8085/payment/cancel?sessionId={CHECKOUT_SESSION_ID}")
                 .addAllLineItem(lineItems)
-                .setCustomerEmail(customerEmail) // Ajout de l'email du client dans Stripe
+                .setCustomerEmail(user.getEmail()) // Ajout de l'email du client dans Stripe
                 .build();
 
         Session session = Session.create(params);
@@ -91,6 +98,8 @@ public class PaymentServiceImpl implements IPaymentService {
         // Enregistrer les détails de paiement dans la base de données
         Payment payment = new Payment();
         payment.setCartId(cartId);
+        payment.setUserId(cart.getUserId());
+        payment.setUsername(user.getUsername());
         payment.setBookId(cart.getBookId());
         payment.setAmount(cart.getTotalPrice());
         payment.setBookTitle(cart.getBookTitle());
@@ -101,7 +110,7 @@ public class PaymentServiceImpl implements IPaymentService {
         payment.setPaymentStatus(PaymentStatus.PENDING);
         payment.setStripeSessionId(session.getId());
         payment.setPaymentDate(LocalDateTime.now()); // Date actuelle
-        payment.setCustomerEmail(customerEmail); // Email du client
+        payment.setCustomerEmail(user.getEmail()); // Email du client
         paymentRepository.save(payment);
 
         return session.getUrl();
@@ -117,10 +126,10 @@ public class PaymentServiceImpl implements IPaymentService {
         if (existingPayment.getPaymentStatus() == PaymentStatus.FAILED || existingPayment.getPaymentStatus() == PaymentStatus.PENDING) {
             // Extraire les informations nécessaires
             Long cartId = existingPayment.getCartId();
-            String customerEmail = existingPayment.getCustomerEmail();
+            //String customerEmail = existingPayment.getCustomerEmail();
 
             // Créer une nouvelle session de paiement
-            String sessionUrl = createCheckoutSession(cartId, customerEmail);
+            String sessionUrl = createCheckoutSession(cartId, existingPayment.getUserId());
 
             // Mettre à jour le paiement existant avec le nouveau Stripe Session ID
             Payment latestPayment = paymentRepository.findTopByOrderByPaymentDateDesc().orElse(null);

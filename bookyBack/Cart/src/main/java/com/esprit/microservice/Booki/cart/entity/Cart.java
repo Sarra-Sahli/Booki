@@ -29,9 +29,8 @@ public class Cart {
     @Column()
     private String imageUrl;
 
-
-    //  @Column(name = "user_id")  // Add user reference if needed
-   // private Long userId;
+    @Column(name = "user_id")  // Add user reference if needed
+    private Long userId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -100,7 +99,7 @@ public class Cart {
         this.totalPrice = totalPrice;
     }
 
-   /* public Long getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
@@ -109,7 +108,6 @@ public class Cart {
     }
 
 
-    */
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }

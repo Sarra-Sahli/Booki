@@ -20,6 +20,8 @@ public class Payment {
     private Long id;
 
     private Long cartId;
+    private Long UserId;
+    private String username;
 
     private Long bookId;
     private String bookTitle;

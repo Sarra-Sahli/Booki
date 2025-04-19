@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpEvent } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { Book } from '../models/Books';
 import { environment } from '../../environments/environment';
 import { map, catchError } from 'rxjs/operators';
@@ -26,21 +26,28 @@ export class BookService {
     
     return this.http.post(`${this.apiUrl}/upload`, formData, {
       responseType: 'text'
-    });
-}
+    }).pipe(
+      catchError(error => {
+        console.error('Erreur upload image:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 
   getUploadUrl(): string {
     return `${this.apiUrl}/upload`;
   }
 
   // Méthode pour ajouter un livre
-  addBook(book: Book): Observable<Book> {
-    const apiBook = {
-      ...book,
-      publicationDate: book.publicationDate || new Date().toISOString()
-    };
-    return this.http.post<Book>(`${this.apiUrl}/AjoutLivre`, apiBook);
+  addBook(book: Book): Observable<any> {
+    return this.http.post(`${this.apiUrl}/AjoutLivre`, book).pipe(
+      catchError(error => {
+        console.error('Erreur ajout livre:', error);
+        return throwError(() => error);
+      })
+    );
   }
+
   getBookById(id: number): Observable<any> {
     return this.http.get(`${environment.apiUrl}/getbookbyid/${id}`);
   }
@@ -58,29 +65,10 @@ export class BookService {
   }
   
   private getFullImageUrl(imagePath: string): string {
-    if (!imagePath) {
-      console.log('No image path provided');
-      return '';
-    }
-    if (imagePath.startsWith('http')) {
-      console.log('Using full URL:', imagePath);
-      return imagePath;
-    }
-
-
-
-    
-    
-    // Nettoyer le chemin de l'image
-    let cleanPath = imagePath;
-    // Supprimer les préfixes indésirables
-    cleanPath = cleanPath.replace(/^\/+api\/books\/uploads\//, '');
-    cleanPath = cleanPath.replace(/^\/+uploads\//, '');
-    cleanPath = cleanPath.replace(/^\/+/, '');
-    
-    const fullUrl = `${this.apiUrl}/uploads/${cleanPath}`;
-    console.log('Generated image URL:', fullUrl);
-    return fullUrl;
+    if (!imagePath) return 'assets/default-book.jpg';
+    if (imagePath.startsWith('http')) return imagePath;
+    if (imagePath.startsWith('/uploads/')) return `${this.apiUrl}${imagePath}`;
+    return `${this.apiUrl}/uploads/${imagePath}`;
   }
 
   getBooks(): Observable<Book[]> {
@@ -127,5 +115,9 @@ export class BookService {
 
   deleteLivre(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/deleteLivre/${id}`);
+  }
+
+  applyPromotion(bookId: number, promotionPercent: number): Observable<Book> {
+    return this.http.post<Book>(`${this.apiUrl}/applyPromotion/${bookId}?promotionPercent=${promotionPercent}`, {});
   }
 }
