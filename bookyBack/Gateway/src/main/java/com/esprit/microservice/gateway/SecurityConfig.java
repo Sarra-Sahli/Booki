@@ -8,17 +8,36 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
+
+    /*
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity serverHttpSecurity) {
         return serverHttpSecurity.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/eureka/**").permitAll()
-                        .pathMatchers("/carts/**").permitAll()
+                        .pathMatchers("/carts/all").hasRole("ADMIN")
+                        .pathMatchers("/carts/**").authenticated()
                         .pathMatchers("/**").permitAll() // Allow access to book endpoints
                         .anyExchange().authenticated()
-                ).oauth2ResourceServer(oauth -> oauth
-                        .jwt(Customizer.withDefaults())
+
                 )
                 .build();
+    }
+
+
+
+
+     */
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        http
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .authorizeExchange(exchanges -> exchanges
+                        .pathMatchers("/api/**").permitAll()
+                        .pathMatchers("/carts/**").permitAll()
+                        .pathMatchers("/**").permitAll()
+                        .anyExchange().authenticated()
+                );
+        return http.build();
     }
 }

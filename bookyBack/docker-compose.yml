@@ -8,8 +8,29 @@ services:
     networks:
       - booki-network
 
+
+  database:
+    image: mysql:5.7
+    container_name: database
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: kaddem
+      TZ: UTC
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "database"]
+      interval: 5s
+      timeout: 10s
+      retries: 20  
+    networks:
+      - kaddem-net
+
   book-service:
-    build: ./GestionLivres
+    image: nousseiba/gestionlivres:latest
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
     ports:
@@ -20,11 +41,12 @@ services:
       - eureka-server
 
   cart-service:
+    image: nousseiba/cart:latest
     build: ./Cart
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
     ports:
-      - "8081:8081"
+      - "8082:8082"
     networks:
       - booki-network
     depends_on:
@@ -34,3 +56,4 @@ services:
 networks:
   booki-network:
     driver: bridge
+

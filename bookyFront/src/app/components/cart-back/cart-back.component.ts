@@ -119,8 +119,6 @@
 // }
 
 
-
-
 import { Component } from '@angular/core';
 import { Cart } from 'src/app/models/cart';
 import { CartService } from 'src/app/services/cart.service';
@@ -155,7 +153,7 @@ showQRForCartId: number | null = null;
     }
 
     fetchCartItems(): void {
-      this.cartService.getCartItems().subscribe(
+      this.cartService.getAllCartItems().subscribe(
         (data: Cart[]) => {
           this.cartItems = data;
           this.totalItems = this.cartItems.length;
