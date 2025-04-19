@@ -51,10 +51,15 @@
       <input type="text"
              [(ngModel)]="searchTerm"
              (input)="applyFilter()"
-             placeholder="Rechercher un livre...">
-      <button type="button">
+             placeholder="Rechercher un livre par titre, auteur ou genre..."
+             aria-label="Rechercher un livre">
+      <button type="button" aria-label="Rechercher">
         <i class="fas fa-search"></i>
       </button>
+      <div class="search-hint" *ngIf="!searchTerm">
+        <i class="fas fa-info-circle me-2"></i>
+        Essayez de rechercher par titre, auteur ou genre
+      </div>
     </div>
 
     <!-- Indicateur de chargement -->
@@ -65,8 +70,15 @@
     </div>
 
     <!-- Message si aucun livre n'est disponible -->
-    <div *ngIf="!loading && filteredBooks.length === 0" class="text-center py-4">
-      <p>Aucun livre disponible pour le moment.</p>
+    <div *ngIf="!loading && filteredBooks.length === 0" class="no-books-message">
+      <div class="no-books-icon">
+        <i class="fas fa-book-open"></i>
+      </div>
+      <h4>Aucun livre disponible</h4>
+      <p>Nous n'avons pas trouvé de livres correspondant à vos critères de recherche.</p>
+      <button class="btn btn-outline-primary mt-3" (click)="resetFilters()">
+        <i class="fas fa-sync-alt me-2"></i> Réinitialiser les filtres
+      </button>
     </div>
 
     <!-- Grille des livres -->

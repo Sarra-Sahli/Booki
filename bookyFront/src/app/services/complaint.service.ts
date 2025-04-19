@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, retry } from 'rxjs/operators';
 import { Complaint, ComplaintStatistics } from '../models/complaint';
 import { environment } from '../../environments/environment';
 
@@ -8,13 +9,36 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class ComplaintService {
-  private apiUrl = `${environment.gatewayUrl}/api/complaints`;
+  private apiUrl = environment.complaintUrl;
 
   constructor(private http: HttpClient) { }
 
+  // Gestionnaire d'erreurs HTTP
+  private handleError(error: HttpErrorResponse) {
+    console.error('Erreur HTTP détaillée:', error);
+
+    if (error.status === 0) {
+      // Erreur côté client ou problème de réseau
+      console.error('Une erreur s\'est produite:', error.error);
+      return throwError(() => new Error('Erreur de connexion au serveur. Vérifiez votre connexion réseau ou réessayez plus tard.'));
+    } else {
+      // Le backend a renvoyé un code d'état d'échec
+      console.error(
+        `Le backend a renvoyé le code ${error.status}, ` +
+        `corps de la réponse: ${JSON.stringify(error.error)}`);
+      return throwError(() => error);
+    }
+  }
+
   // Créer une nouvelle réclamation
   createComplaint(complaint: Complaint): Observable<Complaint> {
-    return this.http.post<Complaint>(this.apiUrl, complaint);
+    console.log('URL de l\'API:', this.apiUrl);
+    console.log('Données envoyées au serveur:', complaint);
+    return this.http.post<Complaint>(this.apiUrl, complaint)
+      .pipe(
+        retry(1), // Réessayer une fois en cas d'échec
+        catchError(this.handleError)
+      );
   }
 
   // Récupérer toutes les réclamations avec pagination et filtres
@@ -52,7 +76,13 @@ export class ComplaintService {
 
   // Mettre à jour une réclamation
   updateComplaint(id: string, complaint: Partial<Complaint>): Observable<Complaint> {
-    return this.http.put<Complaint>(`${this.apiUrl}/${id}`, complaint);
+    console.log('URL de mise à jour:', `${this.apiUrl}/${id}`);
+    console.log('Données envoyées pour la mise à jour:', complaint);
+    return this.http.put<Complaint>(`${this.apiUrl}/${id}`, complaint)
+      .pipe(
+        retry(1), // Réessayer une fois en cas d'échec
+        catchError(this.handleError)
+      );
   }
 
   // Supprimer une réclamation

@@ -14,6 +14,10 @@ import { DashboardComponent } from './components/dashborad/dashborad.component';
 import { BookDetailsComponent } from './components/book-details/book-details.component';
 import { PaymentSuccessComponent } from './components/payment-success/payment-success.component';
 import { PaymentBackComponent } from './components/payment-back/payment-back.component';
+import { ReclamationListComponent } from './components/reclamation-list/reclamation-list.component';
+import { ReclamationDetailsComponent } from './components/reclamation-details/reclamation-details.component';
+import { ReclamationAddComponent } from './components/reclamation-add/reclamation-add.component';
+import { ReclamationUpdateComponent } from './components/reclamation-update/reclamation-update.component';
 
 const routes: Routes = [
   {
@@ -24,8 +28,8 @@ const routes: Routes = [
       { path: 'cart', component: CartComponent },
       { path: 'home', component: HomeComponent },
       { path: '', redirectTo: '/home', pathMatch: 'full' },
-      { 
-        path: 'payment-success', 
+      {
+        path: 'payment-success',
         component: PaymentSuccessComponent,
         data: { showSuccess: true } // Optionnel pour gérer l'affichage
       }
@@ -38,11 +42,11 @@ const routes: Routes = [
 
       { path: 'dashboard', component: DashboardComponent},
       { path: 'bookList', component: ListBooksComponent },
-      { path: 'carts', component:CartBackComponent },
+      { path: 'carts', component: CartBackComponent },
       { path: 'books/:id', component: PageBooksComponent }, // Route pour les détails d'un livre
       { path: 'payments', component: PaymentBackComponent },
-
-
+      { path: 'reclamations', component: ReclamationListComponent },
+      { path: 'reclamation-details/:id', component: ReclamationDetailsComponent },
 
     ]
   },
@@ -52,11 +56,15 @@ const routes: Routes = [
     children: [
 
       { path: 'add-book', component: AddBookComponent },
-      { 
+      {
         path: 'update-book/:id', // Route avec paramètre ID
         component: UpdateBookComponent
       },
-
+      { path: 'add-reclamation', component: ReclamationAddComponent },
+      {
+        path: 'update-reclamation/:id', // Route avec paramètre ID
+        component: ReclamationUpdateComponent
+      },
 
     ]
   },

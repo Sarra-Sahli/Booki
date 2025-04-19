@@ -13,9 +13,23 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*', // Autorise toutes les origines
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(morgan('dev'));
+
+// Middleware pour afficher les requêtes entrantes (débogage)
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  if (req.method !== 'GET') {
+    console.log('Body:', req.body);
+  }
+  next();
+});
 
 // Connexion à MongoDB
 mongoose.connect(process.env.MONGODB_URI)
@@ -38,7 +52,7 @@ app.use((req, res, next) => {
 // Gestion des erreurs globales
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
+  res.status(500).json({
     message: 'Une erreur est survenue sur le serveur',
     error: process.env.NODE_ENV === 'development' ? err.message : {}
   });
@@ -47,7 +61,7 @@ app.use((err, req, res, next) => {
 // Démarrage du serveur
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
-  
+
   // Enregistrement auprès d'Eureka
   eurekaClient.start((error) => {
     if (error) {

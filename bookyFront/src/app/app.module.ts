@@ -30,6 +30,10 @@ import { PaymentSuccessComponent } from './components/payment-success/payment-su
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { ReclamationDetailsComponent } from './components/reclamation-details/reclamation-details.component';
+import { ReclamationListComponent } from './components/reclamation-list/reclamation-list.component';
+import { ReclamationAddComponent } from './components/reclamation-add/reclamation-add.component';
+import { ReclamationUpdateComponent } from './components/reclamation-update/reclamation-update.component';
 
 @NgModule({
   declarations: [
@@ -52,6 +56,10 @@ import { MatButtonModule } from '@angular/material/button';
     BookDetailsComponent,
     PaymentBackComponent,
     PaymentSuccessComponent,
+    ReclamationDetailsComponent,
+    ReclamationListComponent,
+    ReclamationAddComponent,
+    ReclamationUpdateComponent,
   ],
   imports: [
     BrowserModule,

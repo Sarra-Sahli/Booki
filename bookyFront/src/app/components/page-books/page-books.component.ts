@@ -378,4 +378,12 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
       this.loadBooks();
     }
   }
+
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.selectedLanguage = 'all';
+    this.showPromotionsOnly = false;
+    this.sortAscending = true;
+    this.applyFilter();
+  }
 }
