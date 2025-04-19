@@ -16,7 +16,8 @@ export class AddBookComponent {
     price: 0,
     originalPrice: 0,
     available: true,
-    publicationDate: new Date().toISOString().split('T')[0],
+    // Set publication date to yesterday to ensure it's in the past
+    publicationDate: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0],
     imageUrl: '',
     quantite: 0,
     language: Language.FRANCAIS,
@@ -47,7 +48,7 @@ export class AddBookComponent {
       }
 
       this.selectedFile = file;
-      
+
       // Afficher un aperçu
       const reader = new FileReader();
       reader.onload = (e: any) => {
@@ -59,7 +60,7 @@ export class AddBookComponent {
 
   onSubmit(): void {
     if (this.isSubmitting || !this.isFormValid()) return;
-    
+
     this.isSubmitting = true;
     this.uploadProgress = 0;
 
@@ -72,7 +73,7 @@ export class AddBookComponent {
 
   private uploadImage(): void {
     if (!this.selectedFile) return;
-  
+
     this.bookService.uploadImage(this.selectedFile).subscribe({
       next: (imageName) => {
         // Simplement utiliser le nom de fichier retourné
@@ -87,20 +88,46 @@ export class AddBookComponent {
     });
 }
   private addBook(): void {
+    // Ensure the date is in the past
+    const today = new Date();
+    const bookDate = new Date(this.book.publicationDate);
+
+    if (bookDate >= today) {
+      alert('La date de publication doit être dans le passé');
+      this.resetUploadState();
+      return;
+    }
+
+    // Ensure originalPrice is set
+    if (!this.book.originalPrice) {
+      this.book.originalPrice = this.book.price;
+    }
+
     this.bookService.addBook(this.book).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Livre ajouté avec succès:', response);
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         console.error('Erreur ajout livre:', err);
-        alert('Erreur lors de l\'ajout du livre');
+        let errorMessage = 'Erreur lors de l\'ajout du livre';
+
+        if (err.error && err.error.error) {
+          errorMessage += ': ' + err.error.error;
+        } else if (err.error && typeof err.error === 'string') {
+          errorMessage += ': ' + err.error;
+        } else if (err.message) {
+          errorMessage += ': ' + err.message;
+        }
+
+        alert(errorMessage);
         this.resetUploadState();
       }
     });
   }
 
   private isFormValid(): boolean {
-    return this.book.title.trim() !== '' && 
+    return this.book.title.trim() !== '' &&
            this.book.author.trim() !== '' &&
            this.book.price > 0 &&
            this.book.quantite >= 0;

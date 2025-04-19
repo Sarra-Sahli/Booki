@@ -14,8 +14,8 @@ export class BookService {
   constructor(private http: HttpClient) { }
 
   exportBooksToPdf() {
-    return this.http.get(`${this.apiUrl}/LivrePdf`, { 
-      responseType: 'blob' 
+    return this.http.get(`${this.apiUrl}/LivrePdf`, {
+      responseType: 'blob'
     });
   }
 
@@ -23,7 +23,7 @@ export class BookService {
   uploadImage(file: File): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     return this.http.post(`${this.apiUrl}/upload`, formData, {
       responseType: 'text'
     });
@@ -35,16 +35,24 @@ export class BookService {
 
   // Méthode pour ajouter un livre
   addBook(book: Book): Observable<Book> {
+    // Ensure the date is in the past and properly formatted
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
     const apiBook = {
       ...book,
-      publicationDate: book.publicationDate || new Date().toISOString()
+      publicationDate: book.publicationDate || yesterday.toISOString().split('T')[0],
+      // Ensure originalPrice is set if not already
+      originalPrice: book.originalPrice || book.price
     };
+
+    console.log('Sending book data:', apiBook);
     return this.http.post<Book>(`${this.apiUrl}/AjoutLivre`, apiBook);
   }
   getBookById(id: number): Observable<any> {
     return this.http.get(`${environment.apiUrl}/getbookbyid/${id}`);
   }
-  
+
   updateBook(id: number, formData: FormData): Observable<any> {
     return this.http.put(`${this.apiUrl}/UpdateLivre/${id}`, formData).pipe(
       map((response: any) => {
@@ -56,7 +64,7 @@ export class BookService {
       })
     );
   }
-  
+
   private getFullImageUrl(imagePath: string): string {
     if (!imagePath) {
       console.log('No image path provided');
@@ -69,15 +77,15 @@ export class BookService {
 
 
 
-    
-    
+
+
     // Nettoyer le chemin de l'image
     let cleanPath = imagePath;
     // Supprimer les préfixes indésirables
     cleanPath = cleanPath.replace(/^\/+api\/books\/uploads\//, '');
     cleanPath = cleanPath.replace(/^\/+uploads\//, '');
     cleanPath = cleanPath.replace(/^\/+/, '');
-    
+
     const fullUrl = `${this.apiUrl}/uploads/${cleanPath}`;
     console.log('Generated image URL:', fullUrl);
     return fullUrl;
@@ -105,7 +113,7 @@ export class BookService {
     return [...books].sort((a, b) => {
       const titleA = a.title.toLowerCase();
       const titleB = b.title.toLowerCase();
-      return ascending 
+      return ascending
         ? titleA.localeCompare(titleB)
         : titleB.localeCompare(titleA);
     });
