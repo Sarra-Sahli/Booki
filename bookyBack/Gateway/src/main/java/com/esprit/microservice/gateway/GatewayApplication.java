@@ -33,6 +33,8 @@ public class GatewayApplication {
         return builder.routes()
                 .route("cart-service", r -> r.path("/carts/**")
                         .uri("lb://BOOKI"))
+                .route("complaint-service", r -> r.path("/api/complaints/**")
+                        .uri("lb://complaint-service"))
                 .route("book-service", r -> r.path("/**")
                         .uri("lb://GestionLivres"))
                 .build();

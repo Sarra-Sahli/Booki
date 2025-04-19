@@ -51,7 +51,7 @@ import { MatButtonModule } from '@angular/material/button';
     CustomSnackBarComponent,
     BookDetailsComponent,
     PaymentBackComponent,
-    PaymentSuccessComponent
+    PaymentSuccessComponent,
   ],
   imports: [
     BrowserModule,
