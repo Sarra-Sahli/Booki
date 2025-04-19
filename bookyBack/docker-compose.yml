@@ -9,7 +9,7 @@ services:
       - booki-network
 
   book-service:
-    build: ./GestionLivres
+    image: sarrahsahli/gestionlivres:latest
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
     ports:
