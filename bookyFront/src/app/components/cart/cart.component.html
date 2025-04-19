@@ -47,7 +47,7 @@
         <p class="tax">Tax: <span>{{ getTax() | currency }}</span></p>
         <p class="total">Total: <span>{{ getTotal() | currency }}</span></p>
       </div>
-      <button class="checkout-btn">Proceed to Checkout</button>
+      <button class="checkout-btn" (click)="proceedToCheckout()">Proceed to Checkout</button>
     </div>
   </div>
   <ng-template #emptyCart>

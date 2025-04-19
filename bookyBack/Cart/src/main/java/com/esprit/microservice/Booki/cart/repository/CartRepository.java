@@ -38,4 +38,12 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
     List<Cart> findAllByOrderByTotalPriceAsc();
     List<Cart> findAllByOrderByTotalPriceDesc();
+
+
+    Optional<Cart> findByUserIdAndBookId(Long userId, Long bookId);
+
+    List<Cart> findByUserId(Long userId); // Add this method
+
 }
+
+

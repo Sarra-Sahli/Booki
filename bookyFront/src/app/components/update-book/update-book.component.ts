@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BookService } from '../../services/book.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { Book, Language } from '../../models/Books';
 
 @Component({
   selector: 'app-update-book',
@@ -22,10 +23,13 @@ export class UpdateBookComponent implements OnInit {
     soldQuantity: 0,
     onSale: false,
     promotionPercent: 0,
-    quantite: 0
+    quantite: 0,
+    language: Language.FRANCAIS,
+    resume: ''
   };
   selectedFile: File | null = null;
   bookId!: number;
+  languages = Language; // Pour accéder à l'enum dans le template
 
   constructor(
     private bookService: BookService,
@@ -90,7 +94,9 @@ export class UpdateBookComponent implements OnInit {
         soldQuantity: this.book.soldQuantity,
         onSale: this.book.onSale,
         promotionPercent: this.book.promotionPercent,
-        quantite: this.book.quantite
+        quantite: this.book.quantite,
+        language: this.book.language,
+        resume: this.book.resume
       });
     
       const formData = new FormData();
@@ -102,7 +108,6 @@ export class UpdateBookComponent implements OnInit {
     
       this.bookService.updateBook(this.bookId, formData).subscribe({
         next: (response) => {
-          // Mettre à jour l'URL de l'image dans le livre
           if (response && response.imagePath) {
             this.book.imageUrl = this.getFullImageUrl(response.imagePath);
           }

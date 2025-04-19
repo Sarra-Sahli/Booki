@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../../services/cart.service';
 import { Cart } from '../../models/cart';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-cart',
@@ -11,7 +12,7 @@ export class CartComponent implements OnInit {
   cartItems: Cart[] = [];
   message: string = '';
 
-  constructor(private cartService: CartService) {}
+  constructor(private cartService: CartService, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.fetchCartItems();
@@ -153,5 +154,28 @@ deleteCartItem(cartId: number): void {
     const total = this.getSubtotal() + this.getTax();
     return parseFloat(total.toFixed(2)); // Round to 2 decimal places
   }
-
+  proceedToCheckout(): void {
+    const customerEmail = 'test@test.com';
+    
+    if (this.cartItems.length > 0) {
+      const cartId = this.cartItems[0].id;
+      
+      this.http.post<{url: string}>('http://localhost:8085/payment/create-session', null, {
+        params: {
+          cartId: cartId.toString(),
+          customerEmail: customerEmail
+        }
+      }).subscribe({
+        next: (response) => {
+          window.location.href = response.url;
+        },
+        error: (error) => {
+          this.message = 'Error creating checkout session: ' + error.message;
+          console.error('Checkout error:', error);
+        }
+      });
+    } else {
+      this.message = 'Cannot checkout with an empty cart';
+    }
+  }
 }

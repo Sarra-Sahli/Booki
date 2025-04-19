@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { BookService } from '../../services/book.service';
-import { Book } from '../../models/Books';
+import { Book, Language } from '../../models/Books';
 
 @Component({
   selector: 'app-add-book',
@@ -12,12 +12,15 @@ export class AddBookComponent {
   book: Book = {
     title: '',
     author: '',
-    genre: 'ROMANCE',
+    genre: '',
     price: 0,
+    originalPrice: 0,
     available: true,
-    publicationDate: new Date().toISOString(),
+    publicationDate: new Date().toISOString().split('T')[0],
     imageUrl: '',
-    quantite: 0
+    quantite: 0,
+    language: Language.FRANCAIS,
+    resume: ''
   };
   selectedFile: File | null = null;
   isSubmitting = false;
@@ -72,25 +75,39 @@ export class AddBookComponent {
   
     this.bookService.uploadImage(this.selectedFile).subscribe({
       next: (imageName) => {
-        // Simplement utiliser le nom de fichier retourné
-        this.book.imageUrl = imageName; // Ou `uploads/${imageName}` selon votre besoin
+        // Construire l'URL complète de l'image
+        this.book.imageUrl = imageName;
         this.addBook();
       },
       error: (err) => {
         console.error('Erreur upload image:', err);
         this.resetUploadState();
-        alert('Erreur lors de l\'upload de l\'image');
+        alert('Erreur lors de l\'upload de l\'image: ' + (err.error?.error || err.message));
       }
     });
-}
+  }
+
   private addBook(): void {
-    this.bookService.addBook(this.book).subscribe({
+    // Convertir la date en format ISO string
+    const date = new Date(this.book.publicationDate);
+    this.book.publicationDate = date.toISOString().split('T')[0];
+    
+    // S'assurer que tous les champs requis sont présents
+    const bookToSend = {
+      ...this.book,
+      available: this.book.available || false,
+      quantite: this.book.quantite || 0,
+      price: this.book.price || 0,
+      originalPrice: this.book.price || 0
+    };
+    
+    this.bookService.addBook(bookToSend).subscribe({
       next: () => {
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         console.error('Erreur ajout livre:', err);
-        alert('Erreur lors de l\'ajout du livre');
+        alert('Erreur lors de l\'ajout du livre: ' + (err.error?.error || err.message));
         this.resetUploadState();
       }
     });
@@ -99,8 +116,10 @@ export class AddBookComponent {
   private isFormValid(): boolean {
     return this.book.title.trim() !== '' && 
            this.book.author.trim() !== '' &&
+           this.book.genre.trim() !== '' &&
            this.book.price > 0 &&
-           this.book.quantite >= 0;
+           this.book.quantite >= 0 &&
+           this.book.language.trim() !== '';
   }
 
   private resetUploadState(): void {

@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { BookService } from '../../services/book.service';
-import { Book } from '../../models/Books';
+import { Book, Language } from '../../models/Books';
 import Swiper from 'swiper';
 import { Navigation, Pagination } from 'swiper/modules';
 import { Router } from '@angular/router';
@@ -30,6 +30,8 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
   swiper: Swiper | undefined;
   searchTerm: string = '';
   sortAscending: boolean = true;
+  selectedLanguage: string = 'all';
+  showPromotionsOnly: boolean = false;
 
   constructor(
     private bookService: BookService,
@@ -112,7 +114,7 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
     this.bookService.getBooks().subscribe({
       next: (books) => {
         this.books = books;
-        this.filteredBooks = [...books];
+        this.applyFilter();
         this.loading = false;
       },
       error: (error) => {
@@ -182,24 +184,65 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
 
   toggleSort(): void {
     this.sortAscending = !this.sortAscending;
-    this.filteredBooks.sort((a, b) => {
-      return this.sortAscending ? 
-        a.price - b.price : 
-        b.price - a.price;
-    });
+    this.applyFilter();
+  }
+
+  filterByLanguage(language: string): void {
+    this.selectedLanguage = language;
+    this.showPromotionsOnly = false;
+    this.applyFilter();
+  }
+
+  togglePromotions(): void {
+    this.showPromotionsOnly = !this.showPromotionsOnly;
+    this.selectedLanguage = 'all';
+    this.applyFilter();
   }
 
   applyFilter(): void {
-    if (!this.searchTerm.trim()) {
-      this.filteredBooks = [...this.books];
-      return;
+    let filtered = [...this.books];
+
+    // Filtre par langue
+    if (this.selectedLanguage !== 'all') {
+      filtered = filtered.filter(book => 
+        book.language.toLowerCase() === this.selectedLanguage.toLowerCase()
+      );
     }
 
-    const searchLower = this.searchTerm.toLowerCase();
-    this.filteredBooks = this.books.filter(book => 
-      book.title.toLowerCase().includes(searchLower) ||
-      book.author.toLowerCase().includes(searchLower)
-    );
+    // Filtre par promotion
+    if (this.showPromotionsOnly) {
+      filtered = filtered.filter(book => book.onSale);
+    }
+
+    // Filtre par recherche
+    if (this.searchTerm) {
+      const search = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(book =>
+        book.title.toLowerCase().includes(search) ||
+        book.author.toLowerCase().includes(search) ||
+        book.genre.toLowerCase().includes(search)
+      );
+    }
+
+    // Tri
+    filtered.sort((a, b) => {
+      const comparison = a.title.localeCompare(b.title);
+      return this.sortAscending ? comparison : -comparison;
+    });
+
+    this.filteredBooks = filtered;
+  }
+
+  getFilterTitle(): string {
+    if (this.showPromotionsOnly) {
+      return 'Livres en promotion';
+    }
+    switch (this.selectedLanguage) {
+      case 'français': return 'Livres Français';
+      case 'arabe': return 'Livres Arabes';
+      case 'anglais': return 'Livres Anglais';
+      default: return 'Tous nos livres';
+    }
   }
 
   getImageUrl(imageUrl: string | undefined): string {
@@ -223,22 +266,6 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
   }
 
   isAddingToCart = false;
-
-  // addToCart(book: any) {
-  //   this.isAddingToCart = true;
-  //   const quantity = 1;
-    
-  //   this.cartService.addToCart(book.id, quantity).subscribe({
-  //     next: (response) => {
-  //       this.isAddingToCart = false;
-  //     },
-  //     error: (err) => {
-  //       console.error('Error adding to cart:', err);
-  //       this.isAddingToCart = false;
-  //     }
-  //   });
-  // }
-
 
   addToCart(book: any) {
     this.isAddingToCart = true;

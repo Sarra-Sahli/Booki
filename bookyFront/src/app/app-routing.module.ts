@@ -11,6 +11,9 @@ import { ListBooksComponent } from './components/list-books/list-books.component
 import { LayoutUpdateAddComponent } from './layouts/layout-update-add/layout-update-add.component';
 import { UpdateBookComponent } from './components/update-book/update-book.component';
 import { DashboardComponent } from './components/dashborad/dashborad.component';
+import { BookDetailsComponent } from './components/book-details/book-details.component';
+import { PaymentSuccessComponent } from './components/payment-success/payment-success.component';
+import { PaymentBackComponent } from './components/payment-back/payment-back.component';
 
 const routes: Routes = [
   {
@@ -20,7 +23,12 @@ const routes: Routes = [
       { path: 'books', component: PageBooksComponent },
       { path: 'cart', component: CartComponent },
       { path: 'home', component: HomeComponent },
-      { path: '', redirectTo: '/home', pathMatch: 'full' }
+      { path: '', redirectTo: '/home', pathMatch: 'full' },
+      { 
+        path: 'payment-success', 
+        component: PaymentSuccessComponent,
+        data: { showSuccess: true } // Optionnel pour gérer l'affichage
+      }
     ]
   },
   {
@@ -32,6 +40,8 @@ const routes: Routes = [
       { path: 'bookList', component: ListBooksComponent },
       { path: 'carts', component:CartBackComponent },
       { path: 'books/:id', component: PageBooksComponent }, // Route pour les détails d'un livre
+      { path: 'payments', component: PaymentBackComponent },
+
 
 
     ]
@@ -49,7 +59,9 @@ const routes: Routes = [
 
 
     ]
-  }
+  },
+  { path: 'book-details/:id', component: BookDetailsComponent },
+
 ];
 
 

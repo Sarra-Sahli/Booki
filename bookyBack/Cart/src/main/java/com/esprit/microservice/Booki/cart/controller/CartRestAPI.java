@@ -1,5 +1,7 @@
 package com.esprit.microservice.Booki.cart.controller;
 
+import com.esprit.microservice.Booki.cart.UserServiceClient;
+import com.esprit.microservice.Booki.cart.dto.UserDTO;
 import com.esprit.microservice.Booki.cart.entity.Cart;
 import com.esprit.microservice.Booki.cart.repository.CartRepository;
 import com.esprit.microservice.Booki.cart.service.CartService;
@@ -7,8 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,22 +33,32 @@ public class CartRestAPI {
     @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    private UserServiceClient userServiceClient;
+
+
     @PostMapping("/add")
-    public ResponseEntity<?> addToCart(@RequestParam Long bookId, @RequestParam Integer quantity) {
+    public ResponseEntity<?> addToCart(
+            @RequestParam Long bookId,
+            @RequestParam Integer quantity) {
         try {
+            // Debug authentication
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("Authentication: " + auth);
+            if (auth != null && auth.getPrincipal() instanceof Jwt) {
+                Jwt jwt = (Jwt) auth.getPrincipal();
+                System.out.println("JWT Claims: " + jwt.getClaims());
+            }
+
             Cart cartItem = cartService.addToCart(bookId, quantity);
             return ResponseEntity.ok(cartItem);
         } catch (RuntimeException ex) {
-            // Return a structured error response
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("message", ex.getMessage());
             errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(errorResponse);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
-
 
     @DeleteMapping("/delete/{cartId}")
     public ResponseEntity<?> deleteCartItem(@PathVariable Long cartId) {
@@ -78,12 +95,33 @@ public class CartRestAPI {
     }
 
 
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Cart>> getCartsByUserId(@PathVariable Long userId) {
+        // First verify the user exists
+        try {
+            UserDTO user = userServiceClient.getUserById(userId);
+            if (user == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Then fetch the user's carts
+            List<Cart> userCarts = cartRepository.findByUserId(userId);
+            return ResponseEntity.ok(userCarts);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body(Collections.emptyList());
+        }
+    }
+
+
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Cart>> getAllCartItems() {
         List<Cart> cartItems = cartService.getCartContents();
         return ResponseEntity.ok(cartItems);
     }
-
 
 
     @GetMapping("/total")
@@ -156,8 +194,6 @@ public class CartRestAPI {
         Page<Cart> carts = cartRepository.findAll(PageRequest.of(page, size));
         return ResponseEntity.ok(carts);
     }
-
-
 
 
 

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
-
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AddBookComponent } from './components/add-book/add-book.component';
@@ -23,9 +23,13 @@ import { QRCodeModule } from 'angularx-qrcode';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CustomSnackBarComponent } from './components/custom-snack-bar/custom-snack-bar.component';
-
-
-
+import { RouterModule } from '@angular/router';
+import { BookDetailsComponent } from './components/book-details/book-details.component';
+import { PaymentBackComponent } from './components/payment-back/payment-back.component';
+import { PaymentSuccessComponent } from './components/payment-success/payment-success.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -44,20 +48,30 @@ import { CustomSnackBarComponent } from './components/custom-snack-bar/custom-sn
     ListBooksComponent,
     UpdateBookComponent,
     LayoutUpdateAddComponent,
-    CustomSnackBarComponent
-    
+    CustomSnackBarComponent,
+    BookDetailsComponent,
+    PaymentBackComponent,
+    PaymentSuccessComponent
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
+    CommonModule,
+    RouterModule,
     AppRoutingModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
     QRCodeModule,
     MatSnackBarModule,
-    BrowserAnimationsModule,
-    
+    MatDialogModule,
+    MatIconModule,
+    MatButtonModule
   ],
-  providers: [],
+  providers: [
+    DatePipe,
+    CurrencyPipe
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

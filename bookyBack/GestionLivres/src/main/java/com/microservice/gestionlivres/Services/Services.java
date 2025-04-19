@@ -168,4 +168,36 @@ public class Services implements Iservices{
 
     }
 
+    public Books applyPromotion(Long id, Integer promotionPercent) {
+        Books book = livreRepo.findById(id);
+        if (book != null) {
+            // Sauvegarder le prix original s'il n'existe pas encore
+            if (book.getOriginalPrice() == null || book.getOriginalPrice() == 0) {
+                book.setOriginalPrice(book.getPrice());
+            }
+
+            if (promotionPercent > 0) {
+                book.setOnSale(true);
+                book.setPromotionPercent(promotionPercent);
+                // Calculer le nouveau prix avec la promotion
+                double newPrice = book.getOriginalPrice() * (1 - (promotionPercent / 100.0));
+                // S'assurer que le prix ne devient pas négatif ou zéro
+                book.setPrice(Math.max(0.01, Math.round(newPrice * 100.0) / 100.0));
+            } else {
+                // Si la promotion est 0%, remettre le prix original
+                book.setOnSale(false);
+                book.setPromotionPercent(0);
+                book.setPrice(book.getOriginalPrice());
+            }
+            
+            // Vérification finale pour s'assurer que le prix n'est pas null
+            if (book.getPrice() == null) {
+                book.setPrice(book.getOriginalPrice());
+            }
+            
+            return livreRepo.save(book);
+        }
+        return null;
+    }
+
 }

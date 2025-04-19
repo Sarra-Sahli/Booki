@@ -4,11 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.gestionlivres.Entites.Books;
 import com.microservice.gestionlivres.Services.Services;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,11 +65,18 @@ public class RestController {
             return ResponseEntity.status(500)
                     .body("Erreur lors de l'upload: " + e.getMessage());
         }
-    }  // <-- Ici était l'accolade en trop
+    }
 
     @PostMapping("/AjoutLivre")
-    public Books ajouterBook(@RequestBody Books book) {
-        return services.ajouterBook(book);
+    public ResponseEntity<?> ajouterBook(@Valid @RequestBody Books book) {
+        try {
+            Books savedBook = services.ajouterBook(book);
+            return ResponseEntity.ok(savedBook);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @GetMapping("/ShowAllLivre")
@@ -96,7 +106,7 @@ public class RestController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> updateBook(
             @PathVariable int id,
-            @RequestPart("book") String bookJson,
+            @Valid @RequestPart("book") String bookJson,
             @RequestPart(value = "file", required = false) MultipartFile file) {
 
         Map<String, Object> response = new HashMap<>();
@@ -118,9 +128,42 @@ public class RestController {
         }
     }
 
+    @PutMapping(value = "/UpdateLivreJson/{id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> updateBookJson(
+            @PathVariable int id,
+            @Valid @RequestBody Books bookUpdates) {
+        
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String result = services.modifierBook(id, bookUpdates, null);
+            Books updatedBook = services.getBookById(id).orElseThrow();
+
+            response.put("message", result);
+            response.put("status", "success");
+            response.put("book", updatedBook);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("message", "Erreur lors de la mise à jour du livre: " + e.getMessage());
+            response.put("status", "error");
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @GetMapping("/getbookbyid/{id}")
     public Optional<Books> getBookById(@PathVariable int id) {
         return services.getBookById(id);
+    }
+
+    @PostMapping("/applyPromotion/{id}")
+    public ResponseEntity<?> applyPromotion(@PathVariable Long id, @RequestParam Integer promotionPercent) {
+        Books updatedBook = services.applyPromotion(id, promotionPercent);
+        if (updatedBook != null) {
+            return ResponseEntity.ok(updatedBook);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/LivrePdf")
@@ -146,6 +189,20 @@ public class RestController {
     Books getById(@PathVariable Long id){
         return services.getById(id);
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ResponseEntity.badRequest().body(errors);
+    }
+
+
 
 
 

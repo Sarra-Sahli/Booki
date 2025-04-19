@@ -1,6 +1,8 @@
 package com.esprit.microservice.Booki.cart.service;
 
+
 import com.esprit.microservice.Booki.cart.BookClient;
+import com.esprit.microservice.Booki.cart.UserServiceClient;
 import com.esprit.microservice.Booki.cart.dto.Books;
 import com.esprit.microservice.Booki.cart.entity.Cart;
 import com.esprit.microservice.Booki.cart.repository.CartRepository;
@@ -10,12 +12,14 @@ import org.knowm.xchart.BitmapEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 
 import com.google.zxing.BarcodeFormat;
@@ -41,53 +45,108 @@ public class CartService {
     @Autowired
     private ObjectMapper objectMapper; // Add Jackson ObjectMapper
 
+    @Autowired
+    private UserServiceClient userServiceClient;
 
     @Transactional
     public Cart addToCart(Long bookId, Integer quantity) {
-        // Validate input parameters
+        // 1. Validate and extract user ID from JWT token
+        Long userId = validateAndExtractUserId();
+        System.out.println("Extracted userId: " + userId); // Debug
+
+
+        // 2. Validate input parameters
+        validateInputParameters(quantity);
+
+        // 3. Fetch book details from Book service
+        Books book = fetchBookDetails(bookId);
+
+        // 4. Check if book already exists in user's cart
+        checkExistingCartItem(userId, bookId, book);
+
+        // 5. Validate stock availability
+        validateStockAvailability(book, quantity);
+
+        // 6. Create new cart item
+        Cart cartItem = createCartItem(userId, bookId, quantity, book);
+
+        // 7. Update book stock in Book service
+        updateBookStock(book, quantity);
+
+        // 8. Save and return cart item
+        return cartRepository.save(cartItem);
+    }
+
+    private Long validateAndExtractUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String username = jwt.getSubject(); // Get username from 'sub' claim
+
+            if (username == null) {
+                throw new RuntimeException("JWT token does not contain a 'sub' claim");
+            }
+
+            // Fetch user ID from User Service
+            Long userId = userServiceClient.getUserIdByUsername(username);
+            System.out.println("Extracted username from JWT: " + username);
+
+            if (userId == null) {
+                throw new RuntimeException("User ID not found for username: " + username);
+            }
+
+            return userId;
+        }
+        throw new RuntimeException("No authenticated user found");
+    }
+
+
+    private void validateInputParameters(Integer quantity) {
         if (quantity == null || quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be a positive number");
         }
+    }
 
-        // Step 1: Get book from Book service
-        Books book;
-        try {
-            book = bookClient.getById(bookId);
-            if (book == null) {
-                throw new RuntimeException("Book not found with ID: " + bookId);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to fetch book details: " + e.getMessage());
+    private Books fetchBookDetails(Long bookId) {
+        Books book = bookClient.getById(bookId);
+        if (book == null) {
+            throw new RuntimeException("Book not found with ID: " + bookId);
         }
+        return book;
+    }
 
-        // Step 2: Check if book already exists in cart
-        Optional<Cart> existingCartItem = cartRepository.findByBookId(bookId);
-        if (existingCartItem.isPresent()) {
+    private void checkExistingCartItem(Long userId, Long bookId, Books book) {
+        cartRepository.findByUserIdAndBookId(userId, bookId).ifPresent(item -> {
             throw new RuntimeException(
                     String.format("Book '%s' is already in your cart", book.getTitle())
             );
-        }
+        });
+    }
 
-        // Step 3: Validate stock availability
+    private void validateStockAvailability(Books book, Integer quantity) {
         if (book.getQuantite() == null || book.getQuantite() < quantity) {
             throw new RuntimeException(
                     String.format("Insufficient stock for '%s'. Requested: %d, Available: %d",
-                            book.getTitle(), quantity, book.getQuantite() != null ? book.getQuantite() : 0)
+                            book.getTitle(), quantity,
+                            book.getQuantite() != null ? book.getQuantite() : 0)
             );
         }
+    }
 
-        // Step 4: Create new cart item
+    private Cart createCartItem(Long userId, Long bookId, Integer quantity, Books book) {
         Cart cartItem = new Cart();
+        cartItem.setUserId(userId);
         cartItem.setBookId(bookId);
         cartItem.setBookTitle(book.getTitle());
         cartItem.setBookPrice(book.getPrice());
         cartItem.setImageUrl(book.getImageUrl());
         cartItem.setQuantity(quantity);
         cartItem.setTotalPrice(book.getPrice() * quantity);
+        return cartItem;
+    }
 
-        // Step 5: Update book stock
+    private void updateBookStock(Books book, Integer quantity) {
         try {
-            // Create a copy of the book with updated quantity
             Books stockUpdate = new Books();
             stockUpdate.setId(book.getId());
             stockUpdate.setTitle(book.getTitle());
@@ -95,14 +154,12 @@ public class CartService {
             stockUpdate.setPrice(book.getPrice());
             stockUpdate.setQuantite(book.getQuantite() - quantity);
             stockUpdate.setImageUrl(book.getImageUrl());
-            // Include all other necessary fields
+            stockUpdate.setAvailable(book.getQuantite() - quantity > 0);
 
-            // Convert to JSON
             String bookJson = objectMapper.writeValueAsString(stockUpdate);
 
-            // Call update endpoint with null file
             ResponseEntity<Map<String, Object>> response = bookClient.updateBook(
-                    Math.toIntExact(bookId),
+                    Math.toIntExact(book.getId()),
                     bookJson,
                     null
             );
@@ -113,10 +170,10 @@ public class CartService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to update book stock: " + e.getMessage());
         }
-
-        // Step 6: Save cart item
-        return cartRepository.save(cartItem);
     }
+
+
+
 
     @Transactional
     public void removeFromCart(Long cartId) {
@@ -155,6 +212,7 @@ public class CartService {
         }
     }
 
+
     @Transactional
     public Cart updateCartItemQuantity(Long cartId, Integer newQuantity) {
         if (newQuantity == null || newQuantity < 0) {
@@ -187,6 +245,8 @@ public class CartService {
             stockUpdate.setPrice(book.getPrice());
             stockUpdate.setQuantite(newStockQuantity);
             stockUpdate.setImageUrl(book.getImageUrl());
+            // Set available to false if new stock quantity is 0
+            stockUpdate.setAvailable(newStockQuantity > 0);
             // Include all other necessary fields
 
             String bookJson = objectMapper.writeValueAsString(stockUpdate);
@@ -214,6 +274,7 @@ public class CartService {
             throw new RuntimeException("Failed to update cart quantity: " + e.getMessage());
         }
     }
+
 
 
     public List<Cart> getCartContents() {
@@ -313,4 +374,6 @@ public class CartService {
             throw new RuntimeException("Failed to generate chart", e);
         }
     }
+
+
 }
