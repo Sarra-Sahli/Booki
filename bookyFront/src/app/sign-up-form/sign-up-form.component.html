@@ -1,7 +1,6 @@
 <div class="signup-container">
   <h2 class="signup-title">CREATE ACCOUNT</h2>
   
-  <!-- Success Message -->
   <div class="success-message" *ngIf="successMessage">
     {{ successMessage }}
   </div>
@@ -48,17 +47,35 @@
       <div class="input-field">
         <span class="input-icon">🔒</span>
         <input 
-          type="password" 
+          [type]="showPassword ? 'text' : 'password'" 
           formControlName="password" 
           placeholder="Password"
           [ngClass]="{'invalid': signUpForm.get('password')?.invalid && signUpForm.get('password')?.touched}"
         >
+        <span class="password-toggle" (click)="togglePasswordVisibility('password')">
+          {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+        </span>
       </div>
+      
+      <!-- Password Strength Meter -->
+      <div class="password-strength">
+        <div class="strength-meter">
+          <div class="strength-bar" [style.width.%]="passwordStrength" 
+               [class.very-weak]="passwordStrength <= 20"
+               [class.weak]="passwordStrength > 20 && passwordStrength <= 40"
+               [class.moderate]="passwordStrength > 40 && passwordStrength <= 60"
+               [class.strong]="passwordStrength > 60 && passwordStrength <= 80"
+               [class.very-strong]="passwordStrength > 80">
+          </div>
+        </div>
+        <div class="strength-message">{{ strengthMessage }}</div>
+      </div>
+      
       <div class="error-message" *ngIf="signUpForm.get('password')?.invalid && signUpForm.get('password')?.touched">
-        Password must be at least 6 characters
+        Password must be at least 8 characters
       </div>
       <div class="password-hint">
-        Your password should be at least 6 characters long
+        Your password should include uppercase, lowercase, numbers, and special characters
       </div>
     </div>
     
@@ -67,11 +84,14 @@
       <div class="input-field">
         <span class="input-icon">🔒</span>
         <input 
-          type="password" 
+          [type]="showConfirmPassword ? 'text' : 'password'" 
           formControlName="confirmPassword" 
           placeholder="Confirm Password"
           [ngClass]="{'invalid': signUpForm.get('confirmPassword')?.invalid && signUpForm.get('confirmPassword')?.touched}"
         >
+        <span class="password-toggle" (click)="togglePasswordVisibility('confirmPassword')">
+          {{ showConfirmPassword ? '👁️' : '👁️‍🗨️' }}
+        </span>
       </div>
       <div class="error-message" *ngIf="signUpForm.get('confirmPassword')?.invalid && signUpForm.get('confirmPassword')?.touched">
         <span *ngIf="signUpForm.get('confirmPassword')?.errors?.['required']">Please confirm your password</span>

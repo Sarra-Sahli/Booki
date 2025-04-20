@@ -130,3 +130,66 @@
   .login-link a:hover {
     text-decoration: underline;
   }
+  /* Add these to your sign-up-form.component.css */
+
+.password-strength {
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.strength-meter {
+  height: 5px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.strength-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.very-weak {
+  background-color: #ff4d4d;
+}
+
+.weak {
+  background-color: #ffa64d;
+}
+
+.moderate {
+  background-color: #ffcc00;
+}
+
+.strong {
+  background-color: #66cc66;
+}
+
+.very-strong {
+  background-color: #2ecc71;
+}
+
+.strength-message {
+  font-size: 12px;
+  color: #666;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  user-select: none;
+}
+
+.input-field {
+  position: relative;
+}
+
+.password-hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}

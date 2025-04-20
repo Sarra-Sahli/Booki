@@ -14,6 +14,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { InterceptorService } from './services/interceptor.service';
 import { HomeComponentComponent } from './home-component/home-component.component';
 import { AdminComponentComponent } from './admin-component/admin-component.component';
+import { PasswordStrengthComponent } from './password-strength/password-strength.component';
 export function tokenGetter() {
   return localStorage.getItem('access_token');
 }
@@ -27,7 +28,8 @@ export function tokenGetter() {
     SignUpFormComponent,
     SignUpPageComponent,
     HomeComponentComponent,
-    AdminComponentComponent
+    AdminComponentComponent,
+    PasswordStrengthComponent
   ],
   imports: [
     BrowserModule,

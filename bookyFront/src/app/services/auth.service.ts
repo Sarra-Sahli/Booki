@@ -191,4 +191,46 @@ export class AuthService {
     const decoded = JSON.parse(atob(token.split('.')[1]));
     return decoded.roles?.includes(role) || false;
   }
+ 
+validatePassword(password: string): { strength: number; message: string } {
+  let strength = 0;
+  let message = '';
+  
+  // Length check
+  if (password.length >= 8) strength += 1;
+  
+  // Contains numbers
+  if (/\d/.test(password)) strength += 1;
+  
+  // Contains uppercase
+  if (/[A-Z]/.test(password)) strength += 1;
+  
+  // Contains lowercase
+  if (/[a-z]/.test(password)) strength += 1;
+  
+  // Contains special chars
+  if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+  
+  // Match these to your backend rules
+  switch (strength) {
+    case 0:
+    case 1:
+      message = 'Very Weak';
+      break;
+    case 2:
+      message = 'Weak';
+      break;
+    case 3:
+      message = 'Moderate';
+      break;
+    case 4:
+      message = 'Strong';
+      break;
+    case 5:
+      message = 'Very Strong';
+      break;
+  }
+  
+  return { strength: (strength / 5) * 100, message };
+}
 }

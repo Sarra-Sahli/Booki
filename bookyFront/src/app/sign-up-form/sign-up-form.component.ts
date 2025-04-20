@@ -14,6 +14,10 @@ export class SignUpFormComponent {
   errorMessages: { [key: string]: string } = {};
   isLoading = false;
   successMessage: string | null = null;
+  passwordStrength = 0;
+  strengthMessage = '';
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -23,10 +27,14 @@ export class SignUpFormComponent {
     this.signUpForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]]
     }, { 
       validators: this.passwordMatchValidator 
+    });
+
+    this.signUpForm.get('password')?.valueChanges.subscribe(() => {
+      this.checkPasswordStrength();
     });
   }
 
@@ -42,16 +50,34 @@ export class SignUpFormComponent {
     return null;
   }
 
+  checkPasswordStrength() {
+    const password = this.signUpForm.get('password')?.value;
+    if (password) {
+      const result = this.authService.validatePassword(password);
+      this.passwordStrength = result.strength;
+      this.strengthMessage = result.message;
+    } else {
+      this.passwordStrength = 0;
+      this.strengthMessage = '';
+    }
+  }
+
   toggleAgreeTerms(): void {
     this.agreeTerms = !this.agreeTerms;
   }
 
+  togglePasswordVisibility(field: string): void {
+    if (field === 'password') {
+      this.showPassword = !this.showPassword;
+    } else {
+      this.showConfirmPassword = !this.showConfirmPassword;
+    }
+  }
+
   onSubmit(): void {
-    console.log('Form submission started');
-    
     if (this.signUpForm.valid && this.agreeTerms) {
       this.isLoading = true;
-      this.errorMessages = {}; // Reset error messages
+      this.errorMessages = {};
       
       const formData = this.signUpForm.value;
       const userData = {
@@ -62,26 +88,18 @@ export class SignUpFormComponent {
       
       this.authService.register(userData).subscribe({
         next: (response) => {
-          console.log('Registration successful:', response);
           this.successMessage = 'Registration successful! Redirecting to login...';
-          
-          // Redirect after 2 seconds
           setTimeout(() => {
             this.router.navigate(['/login']);
           }, 2000);
         },
         error: (error) => {
-          console.error('Registration failed:', error);
           this.isLoading = false;
-          
-          // Map errors to form fields
           if (typeof error === 'object') {
             this.errorMessages = error;
           } else {
             this.errorMessages['general'] = error;
           }
-          
-          // Highlight problematic fields
           for (const field in this.errorMessages) {
             if (this.signUpForm.get(field)) {
               this.signUpForm.get(field)?.setErrors({'serverError': true});
@@ -94,8 +112,6 @@ export class SignUpFormComponent {
       });
     } else {
       this.signUpForm.markAllAsTouched();
-      
-      // Add error if terms not agreed
       if (!this.agreeTerms) {
         this.errorMessages['terms'] = 'You must agree to the terms and conditions';
       }
