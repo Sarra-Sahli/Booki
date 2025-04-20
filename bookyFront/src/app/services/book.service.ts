@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpEvent } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpEvent, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
 import { Book } from '../models/Books';
 import { environment } from '../../environments/environment';
 import { map, catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +13,23 @@ import { map, catchError } from 'rxjs/operators';
 export class BookService {
   private apiUrl = environment.apiUrl; // Utilisez toujours environment.apiUrl
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private authService: AuthService,
+  ) { }
 
+  private getAuthHeaders(): { [header: string]: string } {
+    const token = this.authService.getToken();
+    if (!token) {
+      this.router.navigate(['/login']);
+      throw new Error('Token non disponible');
+    }
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+  }
   exportBooksToPdf() {
     return this.http.get(`${this.apiUrl}/LivrePdf`, {
       responseType: 'blob'
@@ -35,6 +52,13 @@ export class BookService {
 
   // Méthode pour ajouter un livre
   addBook(book: Book): Observable<Book> {
+    // Vérifier si l'utilisateur est authentifié
+    if (!this.authService.isAuthenticated()) {
+      console.log('Utilisateur non authentifié, redirection vers la page de connexion');
+      this.router.navigate(['/login']);
+      return throwError(() => new Error('Utilisateur non authentifié'));
+    }
+
     // Ensure the date is in the past and properly formatted
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -47,13 +71,31 @@ export class BookService {
     };
 
     console.log('Sending book data:', apiBook);
-    return this.http.post<Book>(`${this.apiUrl}/AjoutLivre`, apiBook);
+    return this.http.post<Book>(`${this.apiUrl}/AjoutLivre`, apiBook).pipe(
+      catchError(this.handleError.bind(this))
+    );
   }
   getBookById(id: number): Observable<any> {
-    return this.http.get(`${environment.apiUrl}/getbookbyid/${id}`);
+    // Vérifier si l'utilisateur est authentifié
+    if (!this.authService.isAuthenticated()) {
+      console.log('Utilisateur non authentifié, redirection vers la page de connexion');
+      this.router.navigate(['/login']);
+      return throwError(() => new Error('Utilisateur non authentifié'));
+    }
+
+    return this.http.get(`${environment.apiUrl}/getbookbyid/${id}`).pipe(
+      catchError(this.handleError.bind(this))
+    );
   }
 
   updateBook(id: number, formData: FormData): Observable<any> {
+    // Vérifier si l'utilisateur est authentifié
+    if (!this.authService.isAuthenticated()) {
+      console.log('Utilisateur non authentifié, redirection vers la page de connexion');
+      this.router.navigate(['/login']);
+      return throwError(() => new Error('Utilisateur non authentifié'));
+    }
+
     return this.http.put(`${this.apiUrl}/UpdateLivre/${id}`, formData).pipe(
       map((response: any) => {
         // Assurez-vous que l'URL de l'image est correctement formatée
@@ -61,7 +103,8 @@ export class BookService {
           response.imageUrl = this.getFullImageUrl(response.imagePath);
         }
         return response;
-      })
+      }),
+      catchError(this.handleError.bind(this))
     );
   }
 
@@ -92,7 +135,15 @@ export class BookService {
   }
 
   getBooks(): Observable<Book[]> {
-    return this.http.get<Book[]>(`${this.apiUrl}/ShowAllLivre`).pipe(
+    // Vérifier si l'utilisateur est authentifié
+    if (!this.authService.isAuthenticated()) {
+      console.log('Utilisateur non authentifié, redirection vers la page de connexion');
+      this.router.navigate(['/login']);
+      return throwError(() => new Error('Utilisateur non authentifié'));
+    }
+
+    return this.http.get<Book[]>(`${this.apiUrl}/ShowAllLivre`, {headers: this.getAuthHeaders()
+  }).pipe(
       map(books => {
         return books.map(book => {
           console.log('Processing book:', book.title);
@@ -104,7 +155,8 @@ export class BookService {
           console.log('Processed image URL:', processedBook.imageUrl);
           return processedBook;
         });
-      })
+      }),
+      catchError(this.handleError.bind(this))
     );
   }
 
@@ -134,10 +186,51 @@ export class BookService {
   }
 
   deleteLivre(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/deleteLivre/${id}`);
+    // Vérifier si l'utilisateur est authentifié
+    if (!this.authService.isAuthenticated()) {
+      console.log('Utilisateur non authentifié, redirection vers la page de connexion');
+      this.router.navigate(['/login']);
+      return throwError(() => new Error('Utilisateur non authentifié'));
+    }
+
+    return this.http.delete<void>(`${this.apiUrl}/deleteLivre/${id}`).pipe(
+      catchError(this.handleError.bind(this))
+    );
   }
 
   applyPromotion(bookId: number, promotionPercent: number): Observable<Book> {
-    return this.http.post<Book>(`${this.apiUrl}/applyPromotion/${bookId}?promotionPercent=${promotionPercent}`, {});
+    // Vérifier si l'utilisateur est authentifié
+    if (!this.authService.isAuthenticated()) {
+      console.log('Utilisateur non authentifié, redirection vers la page de connexion');
+      this.router.navigate(['/login']);
+      return throwError(() => new Error('Utilisateur non authentifié'));
+    }
+
+    return this.http.post<Book>(`${this.apiUrl}/applyPromotion/${bookId}?promotionPercent=${promotionPercent}`, {}).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  // Gestionnaire d'erreurs centralisé
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    console.error('Erreur HTTP:', error);
+
+    if (error.status === 401) {
+      // Erreur d'authentification - rediriger vers la page de connexion
+      console.log('Erreur dauthentification, redirection vers la page de connexion');
+      this.authService.logout(); // Nettoyer les données d'authentification
+      this.router.navigate(['/login']);
+      return throwError(() => new Error('Session expirée. Veuillez vous reconnecter.'));
+    } else if (error.status === 403) {
+      // Erreur d'autorisation
+      return throwError(() => new Error('Vous n\'avez pas les droits nécessaires pour effectuer cette action.'));
+    } else if (error.status === 0) {
+      // Erreur de connexion au serveur
+      return throwError(() => new Error('Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet.'));
+    } else {
+      // Autres erreurs
+      const message = error.error?.message || 'Une erreur s\'est produite. Veuillez réessayer plus tard.';
+      return throwError(() => new Error(message));
+    }
   }
 }

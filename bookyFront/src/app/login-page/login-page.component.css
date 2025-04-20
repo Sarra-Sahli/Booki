@@ -1,0 +1,43 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+    background: linear-gradient(135deg, #f0b3b3 0%, #ec6c6c 100%);
+    padding: 20px;
+  }
+  
+  
+  .login-card {
+    display: flex;
+    width: 100%;
+    max-width: 1000px;
+    min-height: 500px;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    flex : 1;
+  }
+  
+  .footer {
+    margin-top: 20px;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  
+  .footer .designer {
+    font-weight: bold;
+  }
+  
+  @media (max-width: 768px) {
+    .login-card {
+      flex-direction: column;
+      gap: 20px; /* Add spacing between welcome and form sections */
+      padding: 20px; /* Optional: add some internal spacing */
+    }
+  }
+  

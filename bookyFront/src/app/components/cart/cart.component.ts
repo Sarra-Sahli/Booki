@@ -16,20 +16,20 @@ export class CartComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchCartItems();
-   
+
   }
 
 
   getImageUrl(imageName: string): string {
     if (!imageName) return 'assets/icomoon/NOIMAGE.png'; // Fallback image
-    
+
     // If it's already a full URL (like from cloud storage)
     if (imageName.startsWith('http')) {
       return imageName;
     }
-    
+
     // For local files stored in your Spring uploads folder
-    return `http://localhost:8095/uploads/${imageName}`;
+    return `/api/uploads/${imageName}`;
   }
 
   // Fetch cart items from the backend
@@ -81,7 +81,7 @@ export class CartComponent implements OnInit {
 // Update the quantity of a cart item
 updateCartItem(cartId: number, newQuantity: number): void {
   if (newQuantity < 1) return; // Prevent quantities below 1
-  
+
   this.cartService.updateCartItem(cartId, newQuantity).subscribe({
     next: (response) => {
       this.fetchCartItems(); // Refresh the cart items
@@ -110,8 +110,8 @@ deleteCartItem(cartId: number): void {
       },
       error: (error) => {
         // Safe error message handling
-        this.message = error.message || 
-                      error.error?.message || 
+        this.message = error.message ||
+                      error.error?.message ||
                       'Failed to delete cart item';
         console.error('Error deleting cart item:', error);
       }
@@ -130,37 +130,37 @@ deleteCartItem(cartId: number): void {
     if (!this.cartItems || this.cartItems.length === 0) {
       return 0;
     }
-  
+
     // Use totalPrice instead of price (since totalPrice = bookPrice * quantity)
     const subtotal = this.cartItems.reduce(
-      (total, item) => total + (item.totalPrice || item.bookPrice * item.quantity), 
+      (total, item) => total + (item.totalPrice || item.bookPrice * item.quantity),
       0
     );
-  
+
     console.log('Subtotal Calculation:', {
       items: this.cartItems,
       calculatedSubtotal: subtotal
     });
-  
+
     return parseFloat(subtotal.toFixed(2));
   }
-  
+
   getTax(): number {
     const tax = this.getSubtotal() * 0.1; // 10% tax
     return parseFloat(tax.toFixed(2)); // Round to 2 decimal places
   }
-  
+
   getTotal(): number {
     const total = this.getSubtotal() + this.getTax();
     return parseFloat(total.toFixed(2)); // Round to 2 decimal places
   }
   proceedToCheckout(): void {
     const customerEmail = 'test@test.com';
-    
+
     if (this.cartItems.length > 0) {
       const cartId = this.cartItems[0].id;
-      
-      this.http.post<{url: string}>('http://localhost:8085/payment/create-session', null, {
+
+      this.http.post<{url: string}>('/api/payment/create-session', null, {
         params: {
           cartId: cartId.toString(),
           customerEmail: customerEmail

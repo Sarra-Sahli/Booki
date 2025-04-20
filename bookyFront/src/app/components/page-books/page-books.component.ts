@@ -7,9 +7,10 @@ import { Router } from '@angular/router';
 import { CartService } from 'src/app/services/cart.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomSnackBarComponent } from '../custom-snack-bar/custom-snack-bar.component';
+import { AuthService } from 'src/app/services/auth.service';
 
 
-const API_BASE_URL = 'http://localhost:8095';
+const API_BASE_URL = '/api';
 
 @Component({
   selector: 'app-page-books',
@@ -37,10 +38,18 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
     private bookService: BookService,
     private cartService: CartService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    // Vérifier si l'utilisateur est authentifié
+    if (!this.authService.isAuthenticated()) {
+      console.log('Utilisateur non authentifié, redirection vers la page de connexion');
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.loadBooks();
     this.loadFeaturedBooks();
     this.loadLatestBooks();

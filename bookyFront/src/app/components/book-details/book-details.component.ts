@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Book } from '../../models/Books';
 import { BookService } from '../../services/book.service';
 import { CartService } from '../../services/cart.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomSnackBarComponent } from '../custom-snack-bar/custom-snack-bar.component';
+import { AuthService } from 'src/app/services/auth.service';
 
-const API_BASE_URL = 'http://localhost:8095';
+const API_BASE_URL = '/api';
 
 @Component({
   selector: 'app-book-details',
@@ -21,12 +22,21 @@ export class BookDetailsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private bookService: BookService,
     private cartService: CartService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
+    // Vérifier si l'utilisateur est authentifié
+    if (!this.authService.isAuthenticated()) {
+      console.log('Utilisateur non authentifié, redirection vers la page de connexion');
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.route.params.subscribe(params => {
       const id = +params['id'];
       this.loadBook(id);
@@ -134,3 +144,4 @@ export class BookDetailsComponent implements OnInit {
     });
   }
 }
+

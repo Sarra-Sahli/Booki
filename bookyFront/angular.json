@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Book-MicroServieFront": {
+    "bookyFront": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/book-micro-servie-front",
+            "outputPath": "dist/booky-front",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -21,16 +21,15 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-               "src/assets"
+              "src/favicon.ico",
+              "src/assets"
             ],
             "styles": [
-              "src/assets/css/style.css" 
+              "src/styles.css",
+              "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
 
             ],
-            "scripts": [
-              "src/assets/js/script.js"
-
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -63,10 +62,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "Book-MicroServieFront:build:production"
+              "browserTarget": "bookyFront:build:production"
             },
             "development": {
-              "browserTarget": "Book-MicroServieFront:build:development"
+              "browserTarget": "bookyFront:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -74,7 +73,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "Book-MicroServieFront:build"
+            "browserTarget": "bookyFront:build"
           }
         },
         "test": {
@@ -87,26 +86,18 @@
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets",
-              {
-                "glob": "**/*",
-                "input": "src/app/images",
-                "output": "/images/"
-              }
+              "src/assets"
             ],
             "styles": [
-              "src/assets/css/style.css" 
+              "src/styles.css"
             ],
-            "scripts": [
-              "src/assets/js/script.js"
-
-            ]
+            "scripts": []
           }
         }
       }
     }
   },
   "cli": {
-    "analytics": "8aa98b36-b7da-4ff5-9ea2-4849b63497ed"
+    "analytics": "4aa07f29-df29-4d7b-9161-98ea7b119ace"
   }
 }

@@ -3,6 +3,8 @@ import { map } from 'rxjs';
 import { Book } from 'src/app/models/Books';
 import { BookService } from 'src/app/services/book.service';
 import { environment } from '../../../environments/environment';
+import { AuthService } from 'src/app/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-books',
@@ -19,7 +21,11 @@ export class ListBooksComponent implements OnInit {
   readonly LOW_STOCK_THRESHOLD = 5;
   readonly CRITICAL_STOCK_THRESHOLD = 2;
 
-  constructor(private bookService: BookService) {}
+  constructor(private bookService: BookService,
+    private authService: AuthService,
+    private router: Router
+
+  ) {}
 
   ngOnInit(): void {
     this.loadBooks();
@@ -32,6 +38,11 @@ export class ListBooksComponent implements OnInit {
   }
 
   loadBooks(): void {
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+  
     this.bookService.getBooks().subscribe({
       next: (data: Book[]) => {
         this.books = data;
@@ -40,6 +51,10 @@ export class ListBooksComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Erreur lors du chargement des livres:', error);
+        if (error.status === 401) { // Non autorisé
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }
       }
     });
   }
