@@ -7,5 +7,8 @@ export interface Cart{
   totalPrice: number;      // Maps to totalPrice (calculated)
   createdAt: string;       // Maps to created_at (ISO string format)
   imageUrl: string; // Ajoutez ce champ
-  userId?: number;         
+  
+  // Optional fields for frontend convenience
+  //bookDetails?: Book;      // Full book details if needed
+  //userId?: number;         // Uncomment if using user references
 }

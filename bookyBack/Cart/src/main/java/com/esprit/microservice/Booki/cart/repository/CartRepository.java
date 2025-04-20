@@ -25,8 +25,8 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     List<Cart> findByBookTitleContainingIgnoreCase(String title);
 
     // Get today's carts
-    @Query("SELECT c FROM Cart c WHERE DATE(c.createdAt) = CURRENT_DATE")
-    List<Cart> findTodayCarts();
+ //   @Query("SELECT c FROM Cart c WHERE DATE(c.createdAt) = CURRENT_DATE")
+   // List<Cart> findTodayCarts();
 
     @Query("SELECT c FROM Cart c WHERE c.createdAt >= :startDate")
     List<Cart> findCartsFromLastWeek(@Param("startDate") LocalDateTime startDate);

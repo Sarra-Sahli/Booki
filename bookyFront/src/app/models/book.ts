@@ -11,6 +11,6 @@ export interface Book {
     quantite: number;
     genre: string;
     language: string;
-    publicationDate: string | Date;
+    publicationDate: Date;
     imageUrl?: string;
 } 

@@ -128,30 +128,6 @@ public class RestController {
         }
     }
 
-    @PutMapping(value = "/UpdateLivreJson/{id}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> updateBookJson(
-            @PathVariable int id,
-            @Valid @RequestBody Books bookUpdates) {
-        
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            String result = services.modifierBook(id, bookUpdates, null);
-            Books updatedBook = services.getBookById(id).orElseThrow();
-
-            response.put("message", result);
-            response.put("status", "success");
-            response.put("book", updatedBook);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("message", "Erreur lors de la mise à jour du livre: " + e.getMessage());
-            response.put("status", "error");
-            return ResponseEntity.badRequest().body(response);
-        }
-    }
-
     @GetMapping("/getbookbyid/{id}")
     public Optional<Books> getBookById(@PathVariable int id) {
         return services.getBookById(id);

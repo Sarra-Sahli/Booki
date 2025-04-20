@@ -19,9 +19,20 @@ public class GatewayApplication {
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route("cart-service", r -> r.path("/carts/**")
-                        .uri("lb://BOOKI"))
+                        .uri("http://cart-service:8082"))
+                .route("payment-service", r -> r.path("/payment/**")
+                        .uri("http://payment-service:8085"))
+                .route("reclamation-service", r -> r.path("/api/complaints/**")
+                        .uri("http://complain-service:3000"))
+                .route("user-service", r -> r.path("/api/**")
+                        .uri("http://user-service:8081"))
+                .route("review-service", r -> r.path("/reviews/**")
+                        .uri("http://review-service:8086"))
+                .route("wishlist-service", r -> r.path("/wishlist/**")
+                        .uri("http://review-service:8086"))
                 .route("book-service", r -> r.path("/**")
-                        .uri("lb://GestionLivres"))
+                        .uri("http://book-service:8095"))
+
                 .build();
     }
 

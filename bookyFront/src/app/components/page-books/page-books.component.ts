@@ -113,6 +113,20 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.bookService.getBooks().subscribe({
       next: (books) => {
+        console.log('Livres chargés depuis l\'API:', books);
+
+        // Vérification des langues disponibles
+        const languages = books.map(book => book.language);
+        const uniqueLanguages = [...new Set(languages)];
+        console.log('Langues disponibles dans les livres:', uniqueLanguages);
+
+        // Comptage des livres par langue
+        const languageCounts = uniqueLanguages.reduce((acc, lang) => {
+          acc[lang] = books.filter(book => book.language === lang).length;
+          return acc;
+        }, {} as {[key: string]: number});
+        console.log('Nombre de livres par langue:', languageCounts);
+
         this.books = books;
         this.applyFilter();
         this.loading = false;
@@ -199,14 +213,35 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
     this.applyFilter();
   }
 
+  filterByGenre(genre: string): void {
+    this.searchTerm = genre;
+    this.selectedLanguage = 'all';
+    this.showPromotionsOnly = false;
+    this.applyFilter();
+  }
+
   applyFilter(): void {
     let filtered = [...this.books];
+    console.log('Livres disponibles:', this.books);
 
     // Filtre par langue
     if (this.selectedLanguage !== 'all') {
-      filtered = filtered.filter(book => 
-        book.language.toLowerCase() === this.selectedLanguage.toLowerCase()
-      );
+      // Mapping des noms de langues affichés vers les valeurs de l'énumération
+      const languageMap: {[key: string]: string} = {
+        'français': 'FRANCAIS',
+        'anglais': 'ANGLAIS',
+        'arabe': 'ARABE'
+      };
+
+      const languageValue = languageMap[this.selectedLanguage];
+      console.log('Filtrage par langue:', this.selectedLanguage, '→', languageValue);
+
+      filtered = filtered.filter(book => {
+        console.log('Livre:', book.title, 'Langue:', book.language);
+        return book.language === languageValue;
+      });
+
+      console.log('Livres filtrés par langue:', filtered.length);
     }
 
     // Filtre par promotion
@@ -236,6 +271,9 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
   getFilterTitle(): string {
     if (this.showPromotionsOnly) {
       return 'Livres en promotion';
+    }
+    if (this.searchTerm && this.selectedLanguage === 'all') {
+      return `Résultats pour "${this.searchTerm}"`;
     }
     switch (this.selectedLanguage) {
       case 'français': return 'Livres Français';
@@ -270,7 +308,7 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
   addToCart(book: any) {
     this.isAddingToCart = true;
     const quantity = 1;
-    
+
     this.cartService.addToCart(book.id, quantity).subscribe({
       next: (response) => {
         this.isAddingToCart = false;
@@ -283,7 +321,7 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
       }
     });
   }
-  
+
   private showSuccess(message: string): void {
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
       data: {
@@ -298,7 +336,7 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
       politeness: 'polite'
     });
   }
-  
+
   private showError(message: string): void {
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
       data: {
@@ -319,6 +357,16 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
     console.log('Adding to wishlist:', book);
   }
 
+  // Méthode pour afficher la langue de manière lisible
+  getLanguageDisplay(language: string): string {
+    const languageMap: {[key: string]: string} = {
+      'FRANCAIS': 'Français',
+      'ANGLAIS': 'Anglais',
+      'ARABE': 'Arabe'
+    };
+    return languageMap[language] || language;
+  }
+
   nextPage(): void {
     this.currentPage++;
     this.loadBooks();
@@ -329,5 +377,13 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
       this.currentPage--;
       this.loadBooks();
     }
+  }
+
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.selectedLanguage = 'all';
+    this.showPromotionsOnly = false;
+    this.sortAscending = true;
+    this.applyFilter();
   }
 }

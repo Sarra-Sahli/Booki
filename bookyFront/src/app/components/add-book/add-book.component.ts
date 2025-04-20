@@ -16,7 +16,8 @@ export class AddBookComponent {
     price: 0,
     originalPrice: 0,
     available: true,
-    publicationDate: new Date().toISOString().split('T')[0],
+    // Set publication date to yesterday to ensure it's in the past
+    publicationDate: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0],
     imageUrl: '',
     quantite: 0,
     language: Language.FRANCAIS,
@@ -47,7 +48,7 @@ export class AddBookComponent {
       }
 
       this.selectedFile = file;
-      
+
       // Afficher un aperçu
       const reader = new FileReader();
       reader.onload = (e: any) => {
@@ -59,7 +60,7 @@ export class AddBookComponent {
 
   onSubmit(): void {
     if (this.isSubmitting || !this.isFormValid()) return;
-    
+
     this.isSubmitting = true;
     this.uploadProgress = 0;
 
@@ -72,54 +73,64 @@ export class AddBookComponent {
 
   private uploadImage(): void {
     if (!this.selectedFile) return;
-  
+
     this.bookService.uploadImage(this.selectedFile).subscribe({
       next: (imageName) => {
-        // Construire l'URL complète de l'image
-        this.book.imageUrl = imageName;
+        // Simplement utiliser le nom de fichier retourné
+        this.book.imageUrl = imageName; // Ou `uploads/${imageName}` selon votre besoin
         this.addBook();
       },
       error: (err) => {
         console.error('Erreur upload image:', err);
         this.resetUploadState();
-        alert('Erreur lors de l\'upload de l\'image: ' + (err.error?.error || err.message));
+        alert('Erreur lors de l\'upload de l\'image');
       }
     });
-  }
-
+}
   private addBook(): void {
-    // Convertir la date en format ISO string
-    const date = new Date(this.book.publicationDate);
-    this.book.publicationDate = date.toISOString().split('T')[0];
-    
-    // S'assurer que tous les champs requis sont présents
-    const bookToSend = {
-      ...this.book,
-      available: this.book.available || false,
-      quantite: this.book.quantite || 0,
-      price: this.book.price || 0,
-      originalPrice: this.book.price || 0
-    };
-    
-    this.bookService.addBook(bookToSend).subscribe({
-      next: () => {
+    // Ensure the date is in the past
+    const today = new Date();
+    const bookDate = new Date(this.book.publicationDate);
+
+    if (bookDate >= today) {
+      alert('La date de publication doit être dans le passé');
+      this.resetUploadState();
+      return;
+    }
+
+    // Ensure originalPrice is set
+    if (!this.book.originalPrice) {
+      this.book.originalPrice = this.book.price;
+    }
+
+    this.bookService.addBook(this.book).subscribe({
+      next: (response) => {
+        console.log('Livre ajouté avec succès:', response);
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         console.error('Erreur ajout livre:', err);
-        alert('Erreur lors de l\'ajout du livre: ' + (err.error?.error || err.message));
+        let errorMessage = 'Erreur lors de l\'ajout du livre';
+
+        if (err.error && err.error.error) {
+          errorMessage += ': ' + err.error.error;
+        } else if (err.error && typeof err.error === 'string') {
+          errorMessage += ': ' + err.error;
+        } else if (err.message) {
+          errorMessage += ': ' + err.message;
+        }
+
+        alert(errorMessage);
         this.resetUploadState();
       }
     });
   }
 
   private isFormValid(): boolean {
-    return this.book.title.trim() !== '' && 
+    return this.book.title.trim() !== '' &&
            this.book.author.trim() !== '' &&
-           this.book.genre.trim() !== '' &&
            this.book.price > 0 &&
-           this.book.quantite >= 0 &&
-           this.book.language.trim() !== '';
+           this.book.quantite >= 0;
   }
 
   private resetUploadState(): void {

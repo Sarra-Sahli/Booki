@@ -156,10 +156,10 @@ public class CartRestAPI {
     }
 
 
-    @GetMapping("/today")
-    public List<Cart> getTodayCarts() {
-        return cartService.getTodayCarts();
-    }
+   // @GetMapping("/today")
+    //public List<Cart> getTodayCarts() {
+  //      return cartService.getTodayCarts();
+    //}
 
     @GetMapping("/last-week")
     public List<Cart> getCartsFromLastWeek() {
@@ -195,11 +195,6 @@ public class CartRestAPI {
         return ResponseEntity.ok(carts);
     }
 
-     @GetMapping("/{cartId}")
-    public ResponseEntity<Cart> getCartItemById(@PathVariable Long cartId) {
-        Cart cartItem = cartService.getCartItemById(cartId);
-        return ResponseEntity.ok(cartItem);
-    }
 
 
 }

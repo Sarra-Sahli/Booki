@@ -2,7 +2,7 @@
     <div class="logo">
       <h2>Admin Panel</h2>
     </div>
-    
+
     <div class="nav-menu">
       <div class="nav-item" [class.active]="isActive('/dashboard')" routerLink="/dashboard">
         <i>📊</i> Dashboard
@@ -18,6 +18,9 @@
       </div>
       <div class="nav-item" [class.active]="isActive('/payments')" routerLink="/payments">
         <i>💳</i> Payments
+      </div>
+      <div class="nav-item" [class.active]="isActive('/reclamations')" routerLink="/reclamations">
+        <i>📝</i> Réclamations
       </div>
     </div>
   </div>

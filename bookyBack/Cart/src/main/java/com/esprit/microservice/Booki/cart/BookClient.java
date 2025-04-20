@@ -1,5 +1,6 @@
 package com.esprit.microservice.Booki.cart;
 
+import com.esprit.microservice.Booki.cart.config.FeignConfig;
 import com.esprit.microservice.Booki.cart.dto.Books;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -10,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
-@FeignClient(name = "GESTIONLIVRES")
+@FeignClient(name = "book-service", url = "http://book-service:8095")
 public  interface BookClient {
 
     @GetMapping("/ShowAllLivre")

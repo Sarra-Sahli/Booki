@@ -321,9 +321,9 @@ public class CartService {
     }
 
 
-    public List<Cart> getTodayCarts() {
-        return cartRepository.findTodayCarts();
-    }
+  //  public List<Cart> getTodayCarts() {
+    //    return cartRepository.findTodayCarts();
+  //  }
 
     public List<Cart> getCartsFromLastWeek() {
         LocalDateTime startDate = LocalDateTime.now().minusDays(7); // Last 7 days
@@ -375,9 +375,5 @@ public class CartService {
         }
     }
 
-    public Cart getCartItemById(Long cartId) {
-        return cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Cart item not found"));
-    }
 
 }

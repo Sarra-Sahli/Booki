@@ -1,0 +1,245 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    image: sarrabennour/booki-eureka:1.0.0
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - bookstore-net
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_REGISTER-WITH-EUREKA=false
+      - EUREKA_CLIENT_FETCH-REGISTRY=false
+      - EUREKA_INSTANCE_HOSTNAME=eureka-server
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  config-server:
+    image: sarrabennour/booki-serverconfig:1.0.0
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCHLOCATIONS=classpath:/config
+    networks:
+      - bookstore-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  mysql-container:
+    image: mysql:8.0
+    container_name: mysql-container
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=bookstore
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - bookstore-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  payment-container:
+    image: sarrabennour/booki-payment:1.0.0
+    hostname: bookstore-app
+    container_name: payment-container
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mysql-container:
+        condition: service_healthy
+      gateway-service:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_APPLICATION_NAME=bookstore-service
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-container:3306/bookstore?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      bookstore-net:
+        aliases:
+          - bookstore-app.localhost
+
+  user-service:
+    image: sarrabennour/booki-user:1.0.0
+    hostname: user-service
+    container_name: user-service
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      gateway-service:
+        condition: service_healthy
+      mysql-container:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_APPLICATION_NAME=user-service
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-container:3306/bookstore?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    networks:
+      bookstore-net:
+        aliases:
+          - user-service.localhost
+
+  cart-service:
+    image: sarrabennour/booki-cart:1.0.0
+    hostname: cart-service
+    container_name: cart-service
+    depends_on:
+      gateway-service:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      mysql-container:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_APPLICATION_NAME=cart-service
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-container:3306/bookstore?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    volumes:
+      - gestionlivres-data:/Database/Data
+      - gestionlivres-uploads:/uploads
+    networks:
+      bookstore-net:
+        aliases:
+          - cart-service.localhost
+
+  review-service:
+    image: sarrabennour/booki-review:1.0.0
+    hostname: review-service
+    container_name: review-service
+    depends_on:
+      gateway-service:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      mysql-container:
+        condition: service_healthy
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_APPLICATION_NAME=cart-service
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-container:3306/bookstore?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+    volumes:
+      - gestionlivres-data:/Database/Data
+      - gestionlivres-uploads:/uploads
+    networks:
+      bookstore-net:
+        aliases:
+          - cart-service.localhost
+
+  book-service:
+    image: sarrabennour/booki-books:1.0.0
+    container_name: book-service
+    ports:
+      - "8095:8095"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - spring.application.name=GestionLivres
+      - server.port=8095
+      - FILE_UPLOAD_DIR=/uploads
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      gateway-service:
+        condition: service_healthy
+    volumes:
+      - gestionlivres-data:/Database/Data
+      - ./uploads:/uploads
+    networks:
+      bookstore-net:
+        aliases:
+          - gestionlivres.localhost
+
+  complaint-service:
+    image: sarrabennour/booki-complain:1.0.0
+    container_name: complaint-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongo:27017/complaints
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+      - APP_NAME=complaint-service
+      - APP_PORT=3000
+    depends_on:
+      - mongo
+      - eureka-server
+      - gateway-service
+    networks:
+      - bookstore-net
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo-complaints
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - bookstore-net
+
+  gateway-service:
+    image: sarrabennour/booki-gateway:1.0.0  # You'll need to build this image
+    container_name: gateway-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_APPLICATION_NAME=Gateway
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - config-server
+      - eureka-server
+    networks:
+      - bookstore-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8083/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql-data:
+  gestionlivres-data:
+  gestionlivres-uploads:
+  mongo-data:
+
+networks:
+  bookstore-net:
+    driver: bridge
