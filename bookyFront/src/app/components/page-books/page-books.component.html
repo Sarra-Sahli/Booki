@@ -1,0 +1,170 @@
+<section id="best-selling-items" class="position-relative padding-large">
+  <div class="container">
+    <!-- Navigation des catégories -->
+    <div class="mb-4">
+      <nav class="nav nav-pills nav-fill">
+        <a class="nav-link" 
+           [class.active]="selectedLanguage === 'all'"
+           (click)="filterByLanguage('all')"
+           href="javascript:void(0)">
+           Tous les livres
+        </a>
+        <a class="nav-link" 
+           [class.active]="selectedLanguage === 'français'"
+           (click)="filterByLanguage('français')"
+           href="javascript:void(0)">
+           Livres Français
+        </a>
+        <a class="nav-link" 
+           [class.active]="selectedLanguage === 'arabe'"
+           (click)="filterByLanguage('arabe')"
+           href="javascript:void(0)">
+           Livres Arabes
+        </a>
+        <a class="nav-link" 
+           [class.active]="selectedLanguage === 'anglais'"
+           (click)="filterByLanguage('anglais')"
+           href="javascript:void(0)">
+           Livres Anglais
+        </a>
+        <a class="nav-link promotion-link" 
+           [class.active]="showPromotionsOnly"
+           (click)="togglePromotions()"
+           href="javascript:void(0)">
+           <i class="fas fa-tags"></i> Promotions
+        </a>
+      </nav>
+    </div>
+
+    <div class="section-title d-md-flex justify-content-between align-items-center mb-4">
+      <h3 class="d-flex align-items-center">{{getFilterTitle()}}</h3>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" (click)="toggleSort()">
+          {{ sortAscending ? 'Trier ↓' : 'Trier ↑' }}
+        </button>
+        <a routerLink="/books" class="btn">Voir tout</a>
+      </div>
+    </div>
+    
+    <!-- Indicateur de chargement -->
+    <div *ngIf="loading" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+
+    <!-- Message si aucun livre n'est disponible -->
+    <div *ngIf="!loading && filteredBooks.length === 0" class="text-center py-4">
+      <p>Aucun livre disponible pour le moment.</p>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="mb-4">
+      <div class="input-group">
+        <input type="text" 
+               class="form-control" 
+               [(ngModel)]="searchTerm" 
+               (input)="applyFilter()"
+               placeholder="Rechercher un livre...">
+        <button class="btn btn-outline-secondary" type="button">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Grille des livres -->
+    <div *ngIf="!loading && filteredBooks.length > 0" class="row">
+      <div class="col-md-3 mb-4" *ngFor="let book of filteredBooks">
+        <div class="card h-100">
+          <div class="position-absolute" *ngIf="book.onSale">
+            <p class="bg-primary py-1 px-3 fs-6 text-white rounded-2">{{book.promotionPercent}}% off</p>
+          </div>
+          <img [src]="getImageUrl(book.imageUrl)" 
+               class="img-fluid shadow-sm" 
+               [alt]="book.title"
+               (error)="onImageError($event)">
+          <div class="card-body">
+            <h6 class="mt-4 mb-0 fw-bold">
+              <a [routerLink]="['/books', book.id]">{{book.title}}</a>
+            </h6>
+            <div class="review-content d-flex">
+              <p class="my-2 me-2 fs-6 text-black-50">{{book.author}}</p>
+              <div class="rating text-warning d-flex align-items-center">
+                <svg class="star star-fill" *ngFor="let star of getRatingStars(book.rating)">
+                  <use xlink:href="#star-fill"></use>
+                </svg>
+              </div>
+            </div>
+            <span class="price text-primary fw-bold mb-2 fs-5">{{book.price | number:'1.2-2'}} TND</span>
+            <a [routerLink]="['/book-details', book.id]" class="text-primary text-decoration-none d-block mb-2">Voir plus de détails</a>
+            <div class="card-concern position-absolute start-0 end-0 d-flex gap-2">
+
+              
+              <button type="button" 
+        class="btn btn-dark" 
+        data-bs-toggle="tooltip" 
+        data-bs-placement="top"
+        data-bs-title="Ajouter au panier"
+        (click)="addToCart(book)"
+        [disabled]="isAddingToCart">
+  <svg class="cart">
+    <use xlink:href="#cart"></use>
+  </svg>
+  <span *ngIf="isAddingToCart" class="spinner-border spinner-border-sm ms-1"></span>
+</button>
+
+
+              <button type="button" 
+                      class="btn btn-dark"
+                      (click)="addToWishlist(book)">
+                <span>
+                  <svg class="wishlist">
+                    <use xlink:href="#heart"></use>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="categories" class="padding-large pt-0">
+  <div class="container">
+    <div class="section-title overflow-hidden mb-4">
+      <h3 class="d-flex align-items-center">Categories</h3>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card mb-4 border-0 rounded-3 position-relative">
+          <a href="index.html">
+            <img src="assets/images/category1.jpg" class="img-fluid rounded-3" alt="cart item">
+            <h6 class=" position-absolute bottom-0 bg-primary m-4 py-2 px-3 rounded-3"><a href="index.html"
+                class="text-white">Romance</a></h6>
+          </a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center mb-4 border-0 rounded-3">
+          <a href="index.html">
+            <img src="assets/images/category2.jpg" class="img-fluid rounded-3" alt="cart item">
+            <h6 class=" position-absolute bottom-0 bg-primary m-4 py-2 px-3 rounded-3"><a href="index.html"
+                class="text-white">Lifestyle</a></h6>
+          </a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center mb-4 border-0 rounded-3">
+          <a href="index.html">
+            <img src="assets/images/category3.jpg" class="img-fluid rounded-3" alt="cart item">
+            <h6 class=" position-absolute bottom-0 bg-primary m-4 py-2 px-3 rounded-3"><a href="index.html"
+                class="text-white">Recipe</a></h6>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
