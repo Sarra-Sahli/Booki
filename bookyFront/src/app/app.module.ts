@@ -15,6 +15,8 @@ import { InterceptorService } from './services/interceptor.service';
 import { HomeComponentComponent } from './home-component/home-component.component';
 import { AdminComponentComponent } from './admin-component/admin-component.component';
 import { PasswordStrengthComponent } from './password-strength/password-strength.component';
+import { VerifyEmailComponent } from './verify-email/verify-email.component';
+import { EmailService } from './services/email.service';
 export function tokenGetter() {
   return localStorage.getItem('access_token');
 }
@@ -29,7 +31,8 @@ export function tokenGetter() {
     SignUpPageComponent,
     HomeComponentComponent,
     AdminComponentComponent,
-    PasswordStrengthComponent
+    PasswordStrengthComponent,
+    VerifyEmailComponent
   ],
   imports: [
     BrowserModule,
@@ -52,7 +55,8 @@ export function tokenGetter() {
       provide: HTTP_INTERCEPTORS,
       useClass: InterceptorService,
       multi: true
-    }
+    },
+    EmailService
   ],
   bootstrap: [AppComponent]
 })

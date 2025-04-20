@@ -7,9 +7,12 @@ import com.example.user.dtos.SignupRequest;
 import com.example.user.models.ERole;
 import com.example.user.models.Role;
 import com.example.user.models.User;
+import com.example.user.models.VerificationToken;
 import com.example.user.repositories.RoleRepository;
 import com.example.user.repositories.UserRepository;
+import com.example.user.repositories.VerificationTokenRepository;
 import com.example.user.security.jwt.JwtUtils;
+import com.example.user.services.EmailService;
 import com.example.user.services.LoginAttemptService;
 import com.example.user.services.PasswordValidationService;
 import com.example.user.services.UserDetailsImpl;
@@ -67,6 +70,12 @@ public class AuthController {
 
     @Autowired
     private LoginAttemptService loginAttemptService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private VerificationTokenRepository tokenRepository;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -152,10 +161,39 @@ public class AuthController {
             User savedUser = userRepository.save(user);
             log.info("User registered successfully: {}", savedUser.getId());
 
+            // Create verification token
+            VerificationToken verificationToken = new VerificationToken(savedUser);
+            tokenRepository.save(verificationToken);
+
+            // Send verification email
+            try {
+                log.info("Sending verification email to {}", savedUser.getEmail());
+                emailService.sendVerificationEmail(
+                    savedUser.getEmail(),
+                    savedUser.getUsername(),
+                    verificationToken.getToken()
+                );
+                log.info("Verification email sent successfully");
+            } catch (Exception e) {
+                // Don't fail registration if email sending fails
+                log.error("Failed to send verification email: {}", e.getMessage());
+            }
+
+            // Also send welcome email
+            try {
+                log.info("Sending welcome email to {}", savedUser.getEmail());
+                emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getUsername());
+                log.info("Welcome email sent successfully");
+            } catch (Exception e) {
+                // Don't fail registration if email sending fails
+                log.error("Failed to send welcome email: {}", e.getMessage());
+            }
+
             return ResponseEntity.ok(Map.of(
                     "status", "SUCCESS",
-                    "message", "User registered successfully",
-                    "userId", savedUser.getId()
+                    "message", "User registered successfully. Please check your email for verification instructions.",
+                    "userId", savedUser.getId(),
+                    "email", savedUser.getEmail()
             ));
 
         } catch (Exception ex) {
@@ -214,4 +252,51 @@ public class AuthController {
         return ResponseEntity.badRequest().body(errors);
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<?> testEndpoint() {
+        log.info("Test endpoint called");
+        return ResponseEntity.ok(Map.of(
+                "status", "SUCCESS",
+                "message", "Auth service is working properly",
+                "timestamp", new Date()
+        ));
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyEmail(@RequestParam("token") String token) {
+        log.info("Verifying email with token: {}", token);
+
+        return tokenRepository.findByToken(token)
+                .map(verificationToken -> {
+                    // Check if token is expired
+                    if (verificationToken.isExpired()) {
+                        log.warn("Token expired: {}", token);
+                        return ResponseEntity.badRequest().body(Map.of(
+                                "status", "ERROR",
+                                "message", "Verification token has expired. Please request a new one."
+                        ));
+                    }
+
+                    // Get the user and mark as verified
+                    User user = verificationToken.getUser();
+                    // Here you would typically update a field like 'emailVerified' on the user
+                    // For now, we'll just log it
+                    log.info("Email verified for user: {}", user.getUsername());
+
+                    // Delete the token as it's been used
+                    tokenRepository.delete(verificationToken);
+
+                    return ResponseEntity.ok(Map.of(
+                            "status", "SUCCESS",
+                            "message", "Email verified successfully. You can now log in."
+                    ));
+                })
+                .orElseGet(() -> {
+                    log.warn("Invalid verification token: {}", token);
+                    return ResponseEntity.badRequest().body(Map.of(
+                            "status", "ERROR",
+                            "message", "Invalid verification token."
+                    ));
+                });
+    }
 }

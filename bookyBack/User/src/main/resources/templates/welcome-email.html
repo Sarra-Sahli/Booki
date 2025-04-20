@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Booky!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to Booky!</h1>
+    </div>
+    <div class="content">
+        <p>Hello <strong th:text="${username}">User</strong>,</p>
+        
+        <p>Thank you for joining Booky! We're excited to have you as part of our community.</p>
+        
+        <p>With your new account, you can:</p>
+        <ul>
+            <li>Browse and discover new books</li>
+            <li>Create your own reading lists</li>
+            <li>Connect with other book lovers</li>
+            <li>Track your reading progress</li>
+        </ul>
+        
+        <p>Get started by exploring our collection:</p>
+        
+        <a class="button" th:href="${baseUrl + '/home'}">Start Exploring</a>
+        
+        <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+        
+        <p>Happy reading!</p>
+        <p>The Booky Team</p>
+    </div>
+    <div class="footer">
+        <p>This email was sent to you because you registered for an account on Booky.</p>
+        <p>&copy; 2023 Booky. All rights reserved.</p>
+    </div>
+</body>
+</html>

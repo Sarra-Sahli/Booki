@@ -5,7 +5,7 @@
     padding: 40px 20px;
     box-sizing: border-box;
   }
-  
+
   .signup-title {
     color: #6a5af9;
     font-size: 24px;
@@ -13,20 +13,20 @@
     margin-bottom: 30px;
     text-align: center;
   }
-  
+
   form {
     width: 100%;
   }
-  
+
   .form-group {
     margin-bottom: 20px;
   }
-  
+
   .input-field {
     position: relative;
     width: 100%;
   }
-  
+
   .input-icon {
     position: absolute;
     left: 15px;
@@ -34,7 +34,7 @@
     transform: translateY(-50%);
     color: #666;
   }
-  
+
   input[type="text"],
   input[type="email"],
   input[type="password"] {
@@ -46,50 +46,50 @@
     font-size: 16px;
     box-sizing: border-box;
   }
-  
+
   input[type="text"]:focus,
   input[type="email"]:focus,
   input[type="password"]:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(106, 90, 249, 0.3);
   }
-  
+
   .error-message {
     color: #ff5a5a;
     font-size: 12px;
     margin-top: 5px;
     margin-left: 15px;
   }
-  
+
   .terms-option {
     margin-bottom: 25px;
   }
-  
+
   .checkbox-container {
     display: flex;
     align-items: center;
     cursor: pointer;
   }
-  
+
   .checkbox-container input[type="checkbox"] {
     margin-right: 8px;
   }
-  
+
   .checkbox-container label {
     font-size: 14px;
     color: #666;
   }
-  
+
   .checkbox-container a {
     color: #6a5af9;
     text-decoration: none;
     font-weight: 600;
   }
-  
+
   .checkbox-container a:hover {
     text-decoration: underline;
   }
-  
+
   .signup-button {
     width: 100%;
     padding: 15px;
@@ -104,29 +104,78 @@
     letter-spacing: 1px;
     margin-bottom: 20px;
   }
-  
+
   .signup-button:hover {
     box-shadow: 0 5px 15px rgba(106, 90, 249, 0.4);
   }
-  
+
   .signup-button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
     box-shadow: none;
   }
-  
+
+  .success-message {
+    background-color: #e6f7e6;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .resend-verification {
+    margin-top: 15px;
+  }
+
+  .resend-button {
+    background-color: transparent;
+    border: 1px solid #6a5af9;
+    color: #6a5af9;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .resend-button:hover {
+    background-color: #6a5af9;
+    color: white;
+  }
+
+  .resend-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
   .login-link {
     text-align: center;
     font-size: 14px;
     color: #666;
   }
-  
+
   .login-link a {
     color: #6a5af9;
     text-decoration: none;
     font-weight: 600;
   }
-  
+
   .login-link a:hover {
     text-decoration: underline;
   }

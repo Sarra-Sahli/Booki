@@ -3,16 +3,16 @@
     <div class="form-header">
       <h2>USER LOGIN</h2>
     </div>
-    
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <!-- Username Field -->
       <div class="form-group">
         <div class="input-with-icon">
           <i>👤</i>
-          <input 
-            type="text" 
-            formControlName="username" 
-            placeholder="Username" 
+          <input
+            type="text"
+            formControlName="username"
+            placeholder="Username"
             [ngClass]="{'invalid': loginForm.get('username')?.invalid && loginForm.get('username')?.touched}"
           >
         </div>
@@ -20,14 +20,14 @@
           Username is required
         </div>
       </div>
-      
+
       <!-- Password Field -->
       <div class="form-group">
         <div class="input-with-icon">
           <i>🔒</i>
-          <input 
-            type="password" 
-            formControlName="password" 
+          <input
+            type="password"
+            formControlName="password"
             placeholder="Password"
             [ngClass]="{'invalid': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"
           >
@@ -36,7 +36,7 @@
           Password must be at least 6 characters
         </div>
       </div>
-      
+
       <!-- Remember Me & Forgot Password -->
       <div class="form-options">
         <div class="remember-option" (click)="toggleRememberMe()">
@@ -47,18 +47,24 @@
         </div>
         <a href="#" class="forgot-link">Forgot password?</a>
       </div>
-      
+
       <!-- Server Error Messages -->
       <div class="server-error" *ngIf="errorMessage">
         {{ errorMessage }}
+        <div class="resend-verification" *ngIf="errorMessage && errorMessage.includes('not been verified')">
+          <button type="button" class="resend-button" (click)="resendVerificationEmail()" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Resend Verification Email</span>
+            <span *ngIf="isLoading" class="spinner"></span>
+          </button>
+        </div>
       </div>
-      
+
       <!-- Submit Button -->
       <button type="submit" class="login-button" [disabled]="loginForm.invalid || isLoading">
         <span *ngIf="!isLoading">LOGIN</span>
         <span *ngIf="isLoading" class="spinner"></span>
       </button>
-      
+
       <!-- Sign Up Link -->
       <div class="signup-link">
         Don't have an account? <a routerLink="/signup">Sign up</a>
