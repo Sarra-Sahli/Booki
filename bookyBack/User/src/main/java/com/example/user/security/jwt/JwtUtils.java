@@ -1,5 +1,6 @@
 package com.example.user.security.jwt;
-
+import org.springframework.security.core.GrantedAuthority;
+import com.example.user.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtils {
@@ -27,10 +30,16 @@ public class JwtUtils {
     }
 
     public String generateJwtToken(Authentication authentication) {
-        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+
+        // Extract roles from authorities
+        List<String> roles = userPrincipal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
 
         return Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))
+                .setSubject(userPrincipal.getUsername())
+                .claim("roles", roles)  // Add roles to the token
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key(), SignatureAlgorithm.HS256)
@@ -59,4 +68,4 @@ public class JwtUtils {
         }
         return false;
     }
-} 
+}

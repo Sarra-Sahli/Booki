@@ -9,6 +9,14 @@ import { LoginFormComponent } from './login-form/login-form.component';
 import { WelcomeSectionComponent } from './welcome-section/welcome-section.component';
 import { SignUpFormComponent } from './sign-up-form/sign-up-form.component';
 import { SignUpPageComponent } from './sign-up-page/sign-up-page.component';
+import { JwtModule } from '@auth0/angular-jwt';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { InterceptorService } from './services/interceptor.service';
+import { HomeComponentComponent } from './home-component/home-component.component';
+import { AdminComponentComponent } from './admin-component/admin-component.component';
+export function tokenGetter() {
+  return localStorage.getItem('access_token');
+}
 
 @NgModule({
   declarations: [
@@ -17,15 +25,37 @@ import { SignUpPageComponent } from './sign-up-page/sign-up-page.component';
     LoginFormComponent,
     WelcomeSectionComponent,
     SignUpFormComponent,
-    SignUpPageComponent
+    SignUpPageComponent,
+    HomeComponentComponent,
+    AdminComponentComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: tokenGetter,
+        allowedDomains: ['localhost:8083'],
+        // Remove the signin route from disallowedRoutes since we need to send the token
+        disallowedRoutes: []
+      }
+    })
+
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: InterceptorService,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+
+
+

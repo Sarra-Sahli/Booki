@@ -55,6 +55,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.11</version> <!-- Version compatible with Spring Boot 3.2.3 -->
+        </dependency>
         <!-- Spring Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -1,56 +1,68 @@
-
 <div class="login-form-container">
-    <div class="login-form">
-      <div class="form-header">
-        <h2>USER LOGIN</h2>
+  <div class="login-form">
+    <div class="form-header">
+      <h2>USER LOGIN</h2>
+    </div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- Username Field -->
+      <div class="form-group">
+        <div class="input-with-icon">
+          <i>👤</i>
+          <input 
+            type="text" 
+            formControlName="username" 
+            placeholder="Username" 
+            [ngClass]="{'invalid': loginForm.get('username')?.invalid && loginForm.get('username')?.touched}"
+          >
+        </div>
+        <div class="error-message" *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+          Username is required
+        </div>
       </div>
       
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <div class="input-with-icon">
-            <i>👤</i>
-            <input 
-              type="text" 
-              formControlName="username" 
-              placeholder="Username" 
-              [ngClass]="{'invalid': loginForm.get('username')?.invalid && loginForm.get('username')?.touched}"
-            >
-          </div>
-          <div class="error-message" *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
-            Username is required
-          </div>
+      <!-- Password Field -->
+      <div class="form-group">
+        <div class="input-with-icon">
+          <i>🔒</i>
+          <input 
+            type="password" 
+            formControlName="password" 
+            placeholder="Password"
+            [ngClass]="{'invalid': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"
+          >
         </div>
-        
-        <div class="form-group">
-          <div class="input-with-icon">
-            <i>🔒</i>
-            <input 
-              type="password" 
-              formControlName="password" 
-              placeholder="Password"
-              [ngClass]="{'invalid': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"
-            >
-          </div>
-          <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-            Password must be at least 6 characters
-          </div>
+        <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Password must be at least 6 characters
         </div>
-        
-        <div class="form-options">
-          <div class="remember-option" (click)="toggleRememberMe()">
-            <div class="checkbox" [ngClass]="{'checked': rememberMe}">
-              <div class="checkmark" *ngIf="rememberMe">✓</div>
-            </div>
-            <span>Remember</span>
+      </div>
+      
+      <!-- Remember Me & Forgot Password -->
+      <div class="form-options">
+        <div class="remember-option" (click)="toggleRememberMe()">
+          <div class="checkbox" [ngClass]="{'checked': rememberMe}">
+            <div class="checkmark" *ngIf="rememberMe">✓</div>
           </div>
-          <a href="#" class="forgot-link">Forgot password?</a>
+          <span>Remember me</span>
         </div>
-        
-        <button type="submit" class="login-button" [disabled]="loginForm.invalid">LOGIN</button>
-        
-        <div class="signup-link">
-          Don't have an account? <a href="#">Sign up</a>
-        </div>
-      </form>
-    </div>
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+      
+      <!-- Server Error Messages -->
+      <div class="server-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+      
+      <!-- Submit Button -->
+      <button type="submit" class="login-button" [disabled]="loginForm.invalid || isLoading">
+        <span *ngIf="!isLoading">LOGIN</span>
+        <span *ngIf="isLoading" class="spinner"></span>
+      </button>
+      
+      <!-- Sign Up Link -->
+      <div class="signup-link">
+        Don't have an account? <a routerLink="/signup">Sign up</a>
+      </div>
+    </form>
   </div>
+</div>

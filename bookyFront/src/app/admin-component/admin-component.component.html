@@ -1,0 +1,7 @@
+<h2>Users Management</h2>
+    <table *ngIf="users$ | async as users">
+      <tr *ngFor="let user of users">
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+      </tr>
+    </table>
