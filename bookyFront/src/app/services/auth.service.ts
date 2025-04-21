@@ -29,7 +29,7 @@ export class AuthService {
 
   login(username: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(
-      `${this.apiUrl}/signin`,
+      `http://localhost:8081/api/auth/signin`,
       { username, password },
       {
         withCredentials: true,
@@ -103,7 +103,7 @@ export class AuthService {
     });
 
     // Remove withCredentials for signup
-    return this.http.post(`${this.apiUrl}/signup`, payload, {
+    return this.http.post(`http://localhost:8081/api/auth/signup`, payload, {
       headers: headers
     }).pipe(
       catchError((error: HttpErrorResponse) => {
